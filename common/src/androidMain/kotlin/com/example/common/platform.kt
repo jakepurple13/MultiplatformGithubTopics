@@ -1,0 +1,77 @@
+package com.example.common
+
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import coil.compose.AsyncImage
+import com.google.accompanist.flowlayout.FlowRow
+import kotlinx.coroutines.launch
+
+actual fun getPlatformName(): String {
+    return "Android"
+}
+
+@Composable
+actual fun LoadImage(model: Any?, modifier: Modifier) {
+    AsyncImage(
+        model = model,
+        modifier = modifier,
+        contentDescription = null,
+    )
+}
+
+@Composable
+actual fun ChipLayout(modifier: Modifier, content: @Composable () -> Unit) {
+    FlowRow(modifier, content = content)
+}
+
+class TopicViewModel : ViewModel(), BaseTopicVM by BaseTopicViewModel() {
+
+    init {
+        /*store.data
+            .map { it.currentTopicsListList }
+            .distinctUntilChanged()
+            .onEach {
+                currentTopics.clear()
+                currentTopics.addAll(it)
+            }
+            .filter { it.isNotEmpty() && it.all { t -> t.isNotEmpty() } }
+            .onEach { refresh() }
+            .launchIn(viewModelScope)
+
+        store.data.map { it.topicListList }
+            .distinctUntilChanged()
+            .onEach {
+                topicList.clear()
+                topicList.addAll(it)
+            }
+            .launchIn(viewModelScope)*/
+    }
+
+    override fun setTopic(topic: String) {
+        viewModelScope.launch {
+            currentTopics
+            if (topic !in currentTopics) {
+                currentTopics.add(topic)
+            } else {
+                currentTopics.remove(topic)
+            }
+            if(currentTopics.isNotEmpty()) refresh()
+        }
+    }
+
+    override fun addTopic(topic: String) {
+        if (topic !in topicList && topic.isNotEmpty()) {
+            topicList.add(topic)
+        }
+    }
+
+    override fun removeTopic(topic: String) {
+        viewModelScope.launch {
+            topicList.remove(topic)
+        }
+    }
+}
