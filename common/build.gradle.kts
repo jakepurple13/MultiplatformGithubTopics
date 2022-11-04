@@ -1,5 +1,3 @@
-import org.jetbrains.compose.compose
-
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose")
@@ -32,6 +30,7 @@ kotlin {
                 api("io.ktor:ktor-serialization-kotlinx-json:2.1.2")
                 api("io.ktor:ktor-client-logging:2.1.2")
                 api("org.ocpsoft.prettytime:prettytime:5.0.2.Final")
+                api("com.alialbaali.kamel:kamel-image:0.4.0")
             }
         }
         val commonTest by getting {

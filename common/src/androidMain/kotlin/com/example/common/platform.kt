@@ -1,9 +1,11 @@
 package com.example.common
 
-import androidx.compose.foundation.layout.size
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil.compose.AsyncImage
@@ -26,6 +28,13 @@ actual fun LoadImage(model: Any?, modifier: Modifier) {
 @Composable
 actual fun ChipLayout(modifier: Modifier, content: @Composable () -> Unit) {
     FlowRow(modifier, content = content)
+}
+
+@Composable
+actual fun BoxScope.LoadingIndicator(vm: BaseTopicVM) {
+    AnimatedVisibility(vm.isLoading, modifier = Modifier.align(Alignment.TopCenter)) {
+        CircularProgressIndicator(modifier = Modifier.align(Alignment.TopCenter))
+    }
 }
 
 class TopicViewModel : ViewModel(), BaseTopicVM by BaseTopicViewModel() {

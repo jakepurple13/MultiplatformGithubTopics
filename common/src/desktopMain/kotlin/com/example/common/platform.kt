@@ -1,6 +1,10 @@
 package com.example.common
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -17,6 +21,13 @@ actual fun LoadImage(model: Any?, modifier: Modifier) {
 @Composable
 actual fun ChipLayout(modifier: Modifier, content: @Composable () -> Unit) {
 
+}
+
+@Composable
+actual fun BoxScope.LoadingIndicator(vm: BaseTopicVM) {
+    AnimatedVisibility(vm.isLoading, modifier = Modifier.align(Alignment.TopCenter)) {
+        CircularProgressIndicator(modifier = Modifier.align(Alignment.TopCenter))
+    }
 }
 
 class TopicViewModel(private val viewModelScope: CoroutineScope) : BaseTopicVM by BaseTopicViewModel() {

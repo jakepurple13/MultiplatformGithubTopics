@@ -1,7 +1,6 @@
 package com.example.common
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -13,8 +12,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.SmallTopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -29,10 +26,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import io.kamel.image.KamelImage
+import io.kamel.image.lazyPainterResource
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
-import java.net.URI
 
 @Composable
 fun App(vm: BaseTopicVM) {
@@ -80,32 +78,38 @@ fun GithubTopicUI(vm: BaseTopicVM) {
             },
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
         ) { padding ->
-            //val pullRefreshState = rememberPullRefreshState(refreshing = vm.isLoading, onRefresh = vm::refresh)
-            Box(
-                modifier = Modifier
-                    .padding(padding)
-                    //.pullRefresh(pullRefreshState)
-            ) {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(2.dp),
-                    modifier = Modifier.fillMaxSize(),
-                    state = state
-                ) { items(vm.items) { TopicItem(it, vm.topicList, vm.currentTopics, vm::addTopic) } }
-
-                /*PullRefreshIndicator(
-                    refreshing = vm.isLoading, state = pullRefreshState,
-                    modifier = Modifier.align(Alignment.TopCenter),
-                    backgroundColor = MaterialTheme.colorScheme.background,
-                    contentColor = MaterialTheme.colorScheme.onBackground,
-                    scale = true
-                )*/
-
-                InfiniteListHandler(
-                    listState = state,
-                    onLoadMore = vm::newPage
-                )
-            }
+            TopicContent(
+                modifier = Modifier,
+                padding = padding,
+                state = state,
+                vm = vm
+            )
         }
+    }
+}
+
+@Composable
+fun TopicContent(
+    modifier: Modifier = Modifier,
+    padding: PaddingValues,
+    state: LazyListState,
+    vm: BaseTopicVM
+) {
+    Box(
+        modifier = modifier.padding(padding)
+    ) {
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+            modifier = Modifier.fillMaxSize(),
+            state = state
+        ) { items(vm.items) { TopicItem(it, vm.topicList, vm.currentTopics, vm::addTopic) } }
+
+        LoadingIndicator(vm)
+
+        InfiniteListHandler(
+            listState = state,
+            onLoadMore = vm::newPage
+        )
     }
 }
 
@@ -157,9 +161,10 @@ fun TopicItem(
                 supportingText = { item.description?.let { Text(it) } },
                 leadingContent = {
                     Surface(shape = CircleShape) {
-                        LoadImage(
-                            model = item.owner.avatarUrl,
+                        KamelImage(
+                            lazyPainterResource(item.owner.avatarUrl.orEmpty()),
                             modifier = Modifier.size(48.dp),
+                            contentDescription = null
                         )
                     }
                 },
