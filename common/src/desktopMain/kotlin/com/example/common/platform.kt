@@ -14,11 +14,6 @@ actual fun getPlatformName(): String {
 }
 
 @Composable
-actual fun LoadImage(model: Any?, modifier: Modifier) {
-
-}
-
-@Composable
 actual fun ChipLayout(modifier: Modifier, content: @Composable () -> Unit) {
 
 }

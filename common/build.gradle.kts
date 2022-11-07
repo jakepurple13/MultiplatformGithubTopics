@@ -31,6 +31,7 @@ kotlin {
                 api("io.ktor:ktor-client-logging:2.1.2")
                 api("org.ocpsoft.prettytime:prettytime:5.0.2.Final")
                 api("com.alialbaali.kamel:kamel-image:0.4.0")
+                api("com.mikepenz:multiplatform-markdown-renderer:0.6.1")
             }
         }
         val commonTest by getting {

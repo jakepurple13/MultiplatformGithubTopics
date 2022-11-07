@@ -1,24 +1,37 @@
 package com.example.common
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalUriHandler
@@ -26,22 +39,29 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import com.mikepenz.markdown.Markdown
 import io.kamel.image.KamelImage
 import io.kamel.image.lazyPainterResource
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 
+
+@Immutable
+data class AppActions(
+    val onCardClick: (GitHubTopic) -> Unit,
+    val onShareClick: (GitHubTopic) -> Unit
+)
+
 @Composable
 fun App(vm: BaseTopicVM) {
-    MaterialTheme(colorScheme = if(isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()) {
-        GithubTopicUI(vm)
-    }
+    GithubTopicUI(vm)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GithubTopicUI(vm: BaseTopicVM) {
+    val appActions = LocalAppActions.current
     val scope = rememberCoroutineScope()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         decayAnimationSpec = rememberSplineBasedDecay(),
@@ -82,7 +102,8 @@ fun GithubTopicUI(vm: BaseTopicVM) {
                 modifier = Modifier,
                 padding = padding,
                 state = state,
-                vm = vm
+                vm = vm,
+                onCardClick = appActions.onCardClick
             )
         }
     }
@@ -93,6 +114,7 @@ fun TopicContent(
     modifier: Modifier = Modifier,
     padding: PaddingValues,
     state: LazyListState,
+    onCardClick: (GitHubTopic) -> Unit,
     vm: BaseTopicVM
 ) {
     Box(
@@ -102,7 +124,17 @@ fun TopicContent(
             verticalArrangement = Arrangement.spacedBy(2.dp),
             modifier = Modifier.fillMaxSize(),
             state = state
-        ) { items(vm.items) { TopicItem(it, vm.topicList, vm.currentTopics, vm::addTopic) } }
+        ) {
+            items(vm.items) {
+                TopicItem(
+                    item = it,
+                    savedTopics = vm.topicList,
+                    currentTopics = vm.currentTopics,
+                    onCardClick = onCardClick,
+                    onTopicClick = vm::addTopic
+                )
+            }
+        }
 
         LoadingIndicator(vm)
 
@@ -143,11 +175,11 @@ fun TopicItem(
     item: GitHubTopic,
     savedTopics: List<String>,
     currentTopics: List<String>,
+    onCardClick: (GitHubTopic) -> Unit,
     onTopicClick: (String) -> Unit
 ) {
-    val uri = LocalUriHandler.current
     OutlinedCard(
-        onClick = { uri.openUri(item.htmlUrl) }
+        onClick = { onCardClick(item) }
     ) {
         Column(modifier = Modifier.padding(4.dp)) {
             ListItem(
@@ -294,3 +326,133 @@ fun IconsButton(
     colors: IconButtonColors = IconButtonDefaults.iconButtonColors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) = IconButton(onClick, modifier, enabled, interactionSource, colors) { Icon(icon, null) }
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@Composable
+fun GithubRepo(
+    vm: RepoViewModel,
+    backAction: () -> Unit
+) {
+    val appActions = LocalAppActions.current
+    val uriHandler = LocalUriHandler.current
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(
+        rememberTopAppBarScrollState()
+    )
+
+    LaunchedEffect(Unit) { vm.load() }
+
+    if (vm.error) {
+        AlertDialog(
+            onDismissRequest = { vm.error = false },
+            title = { Text("Something went wrong") },
+            text = { Text("Something went wrong. Either something happened with the connection or this repo has no readme") },
+            confirmButton = { TextButton(onClick = { vm.error = false }) { Text("Dismiss") } }
+        )
+    }
+
+    Scaffold(
+        topBar = {
+            SmallTopAppBar(
+                navigationIcon = { IconsButton(onClick = backAction, icon = Icons.Default.ArrowBack) },
+                title = {
+                    ListItem(
+                        headlineText = { Text(vm.item.name, style = MaterialTheme.typography.titleLarge) },
+                        overlineText = { Text(vm.item.fullName) },
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                    )
+                },
+                actions = {
+                    var showDropDownMenu by remember { mutableStateOf(false) }
+
+                    DropdownMenu(expanded = showDropDownMenu, onDismissRequest = { showDropDownMenu = false }) {
+                        DropdownMenuItem(
+                            content = {
+                                Icon(Icons.Default.OpenInBrowser, null)
+                                Text("Open in Browser")
+                            },
+                            onClick = {
+                                showDropDownMenu = false
+                                uriHandler.openUri(vm.item.htmlUrl)
+                            }
+                        )
+
+                        DropdownMenuItem(
+                            content = {
+                                Icon(Icons.Default.Share, null)
+                                Text("Share")
+                            },
+                            onClick = {
+                                showDropDownMenu = false
+                                appActions.onShareClick(vm.item)
+                            }
+                        )
+                    }
+
+                    IconsButton(onClick = { showDropDownMenu = true }, icon = Icons.Default.MoreVert)
+                },
+                scrollBehavior = scrollBehavior
+            )
+        },
+        /*bottomBar = {
+            BottomAppBar(
+                floatingActionButton = {
+                    ExtendedFloatingActionButton(
+                        text = { Text("Open in Browser") },
+                        icon = { Icon(Icons.Default.OpenInBrowser, null) },
+                        onClick = { uriHandler.openUri(vm.item.htmlUrl) })
+                },
+                actions = {
+                    NavigationBarItem(
+                        selected = false,
+                        onClick = {
+                            val sendIntent: Intent = Intent().apply {
+                                action = Intent.ACTION_SEND
+                                putExtra(Intent.EXTRA_TEXT, vm.item.htmlUrl)
+                                putExtra(Intent.EXTRA_TITLE, vm.item.name)
+                                type = "text/plain"
+                            }
+
+                            val shareIntent = Intent.createChooser(sendIntent, null)
+                            context.startActivity(shareIntent)
+                        },
+                        icon = { Icon(Icons.Default.Share, null) },
+                        label = { Text("Share") }
+                    )
+                }
+            )
+        },*/
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+    ) { padding ->
+        Crossfade(targetState = vm.repoContent) { content ->
+            when (content) {
+                is ReadMeResponse.Failed -> {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            content.message + "\nThis repo may not have a ReadMe file. Please visit in browser",
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+
+                ReadMeResponse.Loading -> {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                is ReadMeResponse.Success -> {
+                    Column(
+                        modifier = Modifier
+                            .padding(padding)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        Markdown(
+                            content = content.content,
+                            modifier = Modifier.padding(4.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}

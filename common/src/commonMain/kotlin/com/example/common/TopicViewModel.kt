@@ -7,6 +7,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 
 class BaseTopicViewModel : BaseTopicVM {
 
@@ -51,4 +53,22 @@ interface BaseTopicVM {
     var isLoading: Boolean
     val currentTopics: SnapshotStateList<String>
     val topicList: SnapshotStateList<String>
+}
+
+class RepoViewModel(
+    topic: String
+) {
+    val item by lazy { Json.decodeFromString<GitHubTopic>(topic) }
+    var repoContent by mutableStateOf<ReadMeResponse>(ReadMeResponse.Loading)
+    var error by mutableStateOf(false)
+
+    suspend fun load() {
+        Network.getReadMe(item.fullName).fold(
+            onSuccess = { repoContent = it },
+            onFailure = {
+                it.printStackTrace()
+                error = true
+            }
+        )
+    }
 }

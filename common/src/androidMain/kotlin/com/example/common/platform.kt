@@ -8,21 +8,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import coil.compose.AsyncImage
 import com.google.accompanist.flowlayout.FlowRow
 import kotlinx.coroutines.launch
 
 actual fun getPlatformName(): String {
     return "Android"
-}
-
-@Composable
-actual fun LoadImage(model: Any?, modifier: Modifier) {
-    AsyncImage(
-        model = model,
-        modifier = modifier,
-        contentDescription = null,
-    )
 }
 
 @Composable
