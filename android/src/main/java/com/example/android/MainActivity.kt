@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -29,6 +30,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.common.*
+import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
+import com.google.accompanist.navigation.material.ModalBottomSheetLayout
+import com.google.accompanist.navigation.material.bottomSheet
+import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
 import io.realm.kotlin.ext.asFlow
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -36,12 +41,14 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val db = Database()
         setContent {
             val vm: AppViewModel = viewModel { AppViewModel(db) }
-            val navController = rememberNavController()
+            val bottomSheetNavigator = rememberBottomSheetNavigator()
+            val navController = rememberNavController(bottomSheetNavigator)
             val scope = rememberCoroutineScope()
             Theme(
                 themeColors = vm.themeColors,
@@ -62,59 +69,65 @@ class MainActivity : ComponentActivity() {
                     onSettingsClick = { navController.navigate("settings") }
                 )
             ) {
-                NavHost(
-                    navController = navController,
-                    startDestination = "app"
+                ModalBottomSheetLayout(
+                    bottomSheetNavigator,
+                    sheetBackgroundColor = MaterialTheme.colorScheme.background,
+                    sheetShape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
                 ) {
-
-                    composable("app") { App(vm = viewModel { TopicViewModel(vm.settingInformation) }) }
-
-                    composable(
-                        "repoReadMe" + "/{topic}",
-                        arguments = listOf(navArgument("topic") { type = NavType.StringType })
+                    NavHost(
+                        navController = navController,
+                        startDestination = "app"
                     ) {
-                        GithubRepo(
-                            vm = viewModel {
-                                RepoViewModel(
-                                    createSavedStateHandle().get<String>("topic").orEmpty()
-                                )
-                            },
-                            backAction = { navController.popBackStack() }
-                        )
-                    }
 
-                    composable("settings") {
-                        val context = LocalContext.current
-                        SettingsScreen(
-                            currentThemeColors = vm.themeColors,
-                            setCurrentThemeColors = { scope.launch { db.changeTheme(it) } },
-                            isDarkMode = vm.isDarkMode,
-                            onModeChange = { scope.launch { db.changeMode(it) } },
-                            defaultTheme = when {
-                                Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                                    if (vm.isDarkMode) dynamicDarkColorScheme(context)
-                                    else dynamicLightColorScheme(context)
-                                }
-                                else -> ThemeColors.Default.getThemeScheme(vm.isDarkMode)
-                            },
-                            topPull = {
-                                VerticalSpacer(MaterialTheme.spacing.l)
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.Center
-                                ) {
-                                    Box(
-                                        Modifier
-                                            .background(
-                                                MaterialTheme.colorScheme.onBackground,
-                                                RoundedCornerShape(4.dp)
-                                            )
-                                            .size(width = 100.dp, height = 8.dp)
+                        composable("app") { App(vm = viewModel { TopicViewModel(vm.settingInformation) }) }
+
+                        composable(
+                            "repoReadMe" + "/{topic}",
+                            arguments = listOf(navArgument("topic") { type = NavType.StringType })
+                        ) {
+                            GithubRepo(
+                                vm = viewModel {
+                                    RepoViewModel(
+                                        createSavedStateHandle().get<String>("topic").orEmpty()
                                     )
+                                },
+                                backAction = { navController.popBackStack() }
+                            )
+                        }
+
+                        bottomSheet("settings") {
+                            val context = LocalContext.current
+                            SettingsScreen(
+                                currentThemeColors = vm.themeColors,
+                                setCurrentThemeColors = { scope.launch { db.changeTheme(it) } },
+                                isDarkMode = vm.isDarkMode,
+                                onModeChange = { scope.launch { db.changeMode(it) } },
+                                defaultTheme = when {
+                                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                                        if (vm.isDarkMode) dynamicDarkColorScheme(context)
+                                        else dynamicLightColorScheme(context)
+                                    }
+                                    else -> ThemeColors.Default.getThemeScheme(vm.isDarkMode)
+                                },
+                                topPull = {
+                                    VerticalSpacer(MaterialTheme.spacing.l)
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.Center
+                                    ) {
+                                        Box(
+                                            Modifier
+                                                .background(
+                                                    MaterialTheme.colorScheme.onBackground,
+                                                    RoundedCornerShape(4.dp)
+                                                )
+                                                .size(width = 100.dp, height = 8.dp)
+                                        )
+                                    }
+                                    VerticalSpacer(MaterialTheme.spacing.l)
                                 }
-                                VerticalSpacer(MaterialTheme.spacing.l)
-                            }
-                        )
+                            )
+                        }
                     }
                 }
             }

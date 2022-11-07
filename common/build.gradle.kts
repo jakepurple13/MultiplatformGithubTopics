@@ -49,6 +49,7 @@ kotlin {
                 api("androidx.lifecycle:lifecycle-runtime-compose:2.6.0-alpha03")
                 api("io.coil-kt:coil-compose:2.2.2")
                 api("com.google.accompanist:accompanist-flowlayout:0.27.0")
+                api("com.google.accompanist:accompanist-navigation-material:0.27.0")
                 api("androidx.navigation:navigation-compose:2.5.3")
             }
         }
