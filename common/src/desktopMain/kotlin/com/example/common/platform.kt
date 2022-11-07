@@ -66,3 +66,5 @@ class TopicViewModel(private val viewModelScope: CoroutineScope) : BaseTopicVM b
         }
     }
 }
+
+class RepoViewModel(t: String) : RepoVM by BaseRepoViewModel(t)

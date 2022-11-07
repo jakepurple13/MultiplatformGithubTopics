@@ -350,7 +350,7 @@ fun IconsButton(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun GithubRepo(
-    vm: RepoViewModel,
+    vm: RepoVM,
     backAction: () -> Unit
 ) {
     val appActions = LocalAppActions.current
@@ -379,66 +379,26 @@ fun GithubRepo(
                         colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                     )
                 },
-                actions = {
-                    var showDropDownMenu by remember { mutableStateOf(false) }
-
-                    DropdownMenu(expanded = showDropDownMenu, onDismissRequest = { showDropDownMenu = false }) {
-                        DropdownMenuItem(
-                            content = {
-                                Icon(Icons.Default.OpenInBrowser, null)
-                                Text("Open in Browser")
-                            },
-                            onClick = {
-                                showDropDownMenu = false
-                                uriHandler.openUri(vm.item.htmlUrl)
-                            }
-                        )
-
-                        DropdownMenuItem(
-                            content = {
-                                Icon(Icons.Default.Share, null)
-                                Text("Share")
-                            },
-                            onClick = {
-                                showDropDownMenu = false
-                                appActions.onShareClick(vm.item)
-                            }
-                        )
-                    }
-
-                    IconsButton(onClick = { showDropDownMenu = true }, icon = Icons.Default.MoreVert)
-                },
                 scrollBehavior = scrollBehavior
             )
         },
-        /*bottomBar = {
-            BottomAppBar(
-                floatingActionButton = {
-                    ExtendedFloatingActionButton(
-                        text = { Text("Open in Browser") },
-                        icon = { Icon(Icons.Default.OpenInBrowser, null) },
-                        onClick = { uriHandler.openUri(vm.item.htmlUrl) })
-                },
-                actions = {
-                    NavigationBarItem(
-                        selected = false,
-                        onClick = {
-                            val sendIntent: Intent = Intent().apply {
-                                action = Intent.ACTION_SEND
-                                putExtra(Intent.EXTRA_TEXT, vm.item.htmlUrl)
-                                putExtra(Intent.EXTRA_TITLE, vm.item.name)
-                                type = "text/plain"
-                            }
+        bottomBar = {
+            BottomAppBar {
+                NavigationBarItem(
+                    selected = false,
+                    onClick = { appActions.onShareClick(vm.item) },
+                    icon = { Icon(Icons.Default.Share, null) },
+                    label = { Text("Share") }
+                )
 
-                            val shareIntent = Intent.createChooser(sendIntent, null)
-                            context.startActivity(shareIntent)
-                        },
-                        icon = { Icon(Icons.Default.Share, null) },
-                        label = { Text("Share") }
-                    )
-                }
-            )
-        },*/
+                NavigationBarItem(
+                    selected = false,
+                    onClick = { uriHandler.openUri(vm.item.htmlUrl) },
+                    icon = { Icon(Icons.Default.OpenInBrowser, null) },
+                    label = { Text("Open in Browser") }
+                )
+            }
+        },
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { padding ->
         Crossfade(targetState = vm.repoContent) { content ->

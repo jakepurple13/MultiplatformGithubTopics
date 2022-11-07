@@ -55,14 +55,14 @@ interface BaseTopicVM {
     val topicList: SnapshotStateList<String>
 }
 
-class RepoViewModel(
+class BaseRepoViewModel(
     topic: String
-) {
-    val item by lazy { Json.decodeFromString<GitHubTopic>(topic) }
-    var repoContent by mutableStateOf<ReadMeResponse>(ReadMeResponse.Loading)
-    var error by mutableStateOf(false)
+) : RepoVM {
+    override val item by lazy { Json.decodeFromString<GitHubTopic>(topic) }
+    override var repoContent by mutableStateOf<ReadMeResponse>(ReadMeResponse.Loading)
+    override var error by mutableStateOf(false)
 
-    suspend fun load() {
+    override suspend fun load() {
         Network.getReadMe(item.fullName).fold(
             onSuccess = { repoContent = it },
             onFailure = {
@@ -71,4 +71,11 @@ class RepoViewModel(
             }
         )
     }
+}
+
+interface RepoVM {
+    val item: GitHubTopic
+    var repoContent: ReadMeResponse
+    var error: Boolean
+    suspend fun load()
 }

@@ -81,3 +81,5 @@ class TopicViewModel : ViewModel(), BaseTopicVM by BaseTopicViewModel() {
         }
     }
 }
+
+class RepoViewModel(t: String) : ViewModel(), RepoVM by BaseRepoViewModel(t)
