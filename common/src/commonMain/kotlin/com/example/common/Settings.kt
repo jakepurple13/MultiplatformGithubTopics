@@ -21,6 +21,7 @@ fun SettingsScreen(
     setCurrentThemeColors: (ThemeColors) -> Unit,
     isDarkMode: Boolean,
     onModeChange: (Boolean) -> Unit,
+    defaultTheme: ColorScheme? = null,
     topPull: @Composable ColumnScope.() -> Unit = {}
 ) {
     Column(
@@ -68,7 +69,7 @@ fun SettingsScreen(
                             Modifier
                                 .clip(RoundedCornerShape(MaterialTheme.spacing.s))
                                 .clickable { setCurrentThemeColors(theme) }
-                                .width(90.dp)
+                                .width(80.dp)
                                 .border(
                                     4.dp,
                                     animateColorAsState(
@@ -89,16 +90,18 @@ fun SettingsScreen(
                                     }
                                 }
 
-                            theme
-                                .getThemeScheme(isDarkMode)
-                                .let { c ->
-                                    Column {
-                                        ColorBox(color = c.background.animate().value)
-                                        ColorBox(color = c.primary.animate().value)
-                                        ColorBox(color = c.surface.animate().value)
-                                        ColorBox(color = c.secondary.animate().value)
-                                    }
+                            if (theme == ThemeColors.Default) {
+                                defaultTheme ?: theme.getThemeScheme(isDarkMode)
+                            } else {
+                                theme.getThemeScheme(isDarkMode)
+                            }.let { c ->
+                                Column {
+                                    ColorBox(color = c.background.animate().value)
+                                    ColorBox(color = c.primary.animate().value)
+                                    ColorBox(color = c.surface.animate().value)
+                                    ColorBox(color = c.secondary.animate().value)
                                 }
+                            }
                         }
                     }
                 }
@@ -112,7 +115,7 @@ fun ColorBox(color: Color) {
     Box(
         Modifier
             .background(color)
-            .fillMaxWidth()
+            .width(40.dp)
             .height(40.dp)
     )
 }

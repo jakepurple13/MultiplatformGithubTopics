@@ -2,6 +2,7 @@ package com.example.android
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,11 +10,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.createSavedStateHandle
@@ -80,11 +84,19 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable("settings") {
+                        val context = LocalContext.current
                         SettingsScreen(
                             currentThemeColors = vm.themeColors,
                             setCurrentThemeColors = { scope.launch { db.changeTheme(it) } },
                             isDarkMode = vm.isDarkMode,
                             onModeChange = { scope.launch { db.changeMode(it) } },
+                            defaultTheme = when {
+                                Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                                    if (vm.isDarkMode) dynamicDarkColorScheme(context)
+                                    else dynamicLightColorScheme(context)
+                                }
+                                else -> ThemeColors.Default.getThemeScheme(vm.isDarkMode)
+                            },
                             topPull = {
                                 VerticalSpacer(MaterialTheme.spacing.l)
                                 Row(
