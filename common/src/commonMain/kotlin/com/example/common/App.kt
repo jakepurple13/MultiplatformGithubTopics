@@ -2,7 +2,6 @@ package com.example.common
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,10 +28,12 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.input.ImeAction
@@ -63,10 +64,7 @@ fun App(vm: BaseTopicVM) {
 fun GithubTopicUI(vm: BaseTopicVM) {
     val appActions = LocalAppActions.current
     val scope = rememberCoroutineScope()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
-        decayAnimationSpec = rememberSplineBasedDecay(),
-        state = rememberTopAppBarScrollState()
-    )
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarScrollState())
     val state = rememberLazyListState()
     val showButton by remember { derivedStateOf { state.firstVisibleItemIndex > 0 } }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -77,7 +75,7 @@ fun GithubTopicUI(vm: BaseTopicVM) {
     ) {
         Scaffold(
             topBar = {
-                LargeTopAppBar(
+                CenterAlignedTopAppBar(
                     navigationIcon = {
                         IconsButton(
                             onClick = { scope.launch { drawerState.open() } },
@@ -86,6 +84,12 @@ fun GithubTopicUI(vm: BaseTopicVM) {
                     },
                     title = { Text(text = "Github Topics") },
                     actions = {
+                        if (refreshIcon) {
+                            IconsButton(
+                                onClick = { scope.launch { vm.refresh() } },
+                                icon = Icons.Default.Refresh
+                            )
+                        }
                         AnimatedVisibility(visible = showButton) {
                             IconsButton(
                                 onClick = { scope.launch { state.animateScrollToItem(0) } },
@@ -118,7 +122,9 @@ fun TopicContent(
     vm: BaseTopicVM
 ) {
     Box(
-        modifier = modifier.padding(padding)
+        modifier = modifier
+            .padding(padding)
+            .padding(vertical = 2.dp)
     ) {
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -135,6 +141,8 @@ fun TopicContent(
                 )
             }
         }
+
+        ReposScrollBar(state)
 
         LoadingIndicator(vm)
 
@@ -264,7 +272,7 @@ fun TopicItem(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun TopicDrawer(vm: BaseTopicVM) {
     var topicText by remember { mutableStateOf("") }
@@ -278,7 +286,16 @@ fun TopicDrawer(vm: BaseTopicVM) {
                     singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 4.dp),
+                        .padding(horizontal = 4.dp)
+                        .onPreviewKeyEvent {
+                            if (it.type == KeyEventType.KeyUp) {
+                                if (it.key == Key.Enter) {
+                                    vm.addTopic(topicText)
+                                    topicText = ""
+                                    true
+                                } else false
+                            } else false
+                        },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                     keyboardActions = KeyboardActions(
                         onNext = {
@@ -286,6 +303,7 @@ fun TopicDrawer(vm: BaseTopicVM) {
                             topicText = ""
                         }
                     ),
+                    label = { Text("Enter Topic") },
                     trailingIcon = {
                         IconsButton(
                             onClick = {
@@ -302,7 +320,9 @@ fun TopicDrawer(vm: BaseTopicVM) {
         LazyColumn(
             contentPadding = padding,
             verticalArrangement = Arrangement.spacedBy(2.dp),
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(vertical = 2.dp),
         ) {
             items(vm.topicList) {
                 NavigationDrawerItem(
@@ -335,9 +355,7 @@ fun GithubRepo(
 ) {
     val appActions = LocalAppActions.current
     val uriHandler = LocalUriHandler.current
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(
-        rememberTopAppBarScrollState()
-    )
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarScrollState())
 
     LaunchedEffect(Unit) { vm.load() }
 

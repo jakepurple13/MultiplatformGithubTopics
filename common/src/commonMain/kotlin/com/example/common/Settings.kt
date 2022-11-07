@@ -1,0 +1,117 @@
+package com.example.common
+
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsScreen(
+    currentThemeColors: ThemeColors,
+    setCurrentThemeColors: (ThemeColors) -> Unit,
+    isDarkMode: Boolean,
+    onModeChange: (Boolean) -> Unit,
+    topPull: @Composable ColumnScope.() -> Unit = {}
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        topPull()
+        Scaffold(
+            topBar = { SmallTopAppBar(title = { Text("Settings") }) }
+        ) { padding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = MaterialTheme.spacing.l)
+                    .padding(padding)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.l)
+            ) {
+                NavigationDrawerItem(
+                    label = { Text("Select Theme Mode") },
+                    badge = {
+                        GroupButton(
+                            selected = isDarkMode,
+                            options = listOf(
+                                GroupButtonModel(false) { Text("Day") },
+                                GroupButtonModel(true) { Text("Night") },
+                            ),
+                            onClick = onModeChange
+                        )
+                    },
+                    onClick = {},
+                    selected = true,
+                    modifier = Modifier.padding(horizontal = 2.dp)
+                )
+
+                Text("Select Theme")
+
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.s),
+                    contentPadding = PaddingValues(horizontal = MaterialTheme.spacing.l)
+                ) {
+                    items(ThemeColors.values()) { theme ->
+                        Row(
+                            Modifier
+                                .clip(RoundedCornerShape(MaterialTheme.spacing.s))
+                                .clickable { setCurrentThemeColors(theme) }
+                                .width(90.dp)
+                                .border(
+                                    4.dp,
+                                    animateColorAsState(
+                                        if (currentThemeColors == theme) Color.Green
+                                        else MaterialTheme.colorScheme.onBackground
+                                    ).value,
+                                    RoundedCornerShape(MaterialTheme.spacing.s)
+                                )
+                        ) {
+                            theme
+                                .getTheme(!androidx.compose.material.MaterialTheme.colors.isLight)
+                                .let { c ->
+                                    Column {
+                                        ColorBox(color = c.background.animate().value)
+                                        ColorBox(color = c.primary.animate().value)
+                                        ColorBox(color = c.surface.animate().value)
+                                        ColorBox(color = c.primaryVariant.animate().value)
+                                    }
+                                }
+
+                            theme
+                                .getThemeScheme(isDarkMode)
+                                .let { c ->
+                                    Column {
+                                        ColorBox(color = c.background.animate().value)
+                                        ColorBox(color = c.primary.animate().value)
+                                        ColorBox(color = c.surface.animate().value)
+                                        ColorBox(color = c.secondary.animate().value)
+                                    }
+                                }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ColorBox(color: Color) {
+    Box(
+        Modifier
+            .background(color)
+            .fillMaxWidth()
+            .height(40.dp)
+    )
+}
+
+@Composable
+fun VerticalSpacer(height: Dp) = Spacer(modifier = Modifier.height(height))

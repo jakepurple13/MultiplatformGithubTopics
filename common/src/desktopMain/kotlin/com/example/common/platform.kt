@@ -1,7 +1,11 @@
 package com.example.common
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -11,6 +15,18 @@ import kotlinx.coroutines.launch
 
 actual fun getPlatformName(): String {
     return "Desktop"
+}
+
+actual val refreshIcon = true
+
+@Composable
+actual fun BoxScope.ReposScrollBar(lazyListState: LazyListState) {
+    VerticalScrollbar(
+        adapter = rememberScrollbarAdapter(lazyListState),
+        modifier = Modifier
+            .align(Alignment.CenterEnd)
+            .fillMaxHeight()
+    )
 }
 
 @Composable
@@ -34,7 +50,7 @@ class TopicViewModel(private val viewModelScope: CoroutineScope) : BaseTopicVM b
             } else {
                 currentTopics.remove(topic)
             }
-            if(currentTopics.isNotEmpty()) refresh()
+            if (currentTopics.isNotEmpty()) refresh()
         }
     }
 

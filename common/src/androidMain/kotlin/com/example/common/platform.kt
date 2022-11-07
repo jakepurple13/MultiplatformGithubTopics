@@ -2,6 +2,7 @@ package com.example.common
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -13,6 +14,12 @@ import kotlinx.coroutines.launch
 
 actual fun getPlatformName(): String {
     return "Android"
+}
+
+actual val refreshIcon = false
+
+@Composable
+actual fun BoxScope.ReposScrollBar(lazyListState: LazyListState) {
 }
 
 @Composable
@@ -58,7 +65,7 @@ class TopicViewModel : ViewModel(), BaseTopicVM by BaseTopicViewModel() {
             } else {
                 currentTopics.remove(topic)
             }
-            if(currentTopics.isNotEmpty()) refresh()
+            if (currentTopics.isNotEmpty()) refresh()
         }
     }
 
