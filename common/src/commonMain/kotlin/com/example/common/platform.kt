@@ -17,3 +17,6 @@ expect fun ChipLayout(modifier: Modifier = Modifier, content: @Composable () -> 
 
 @Composable
 expect fun BoxScope.LoadingIndicator(vm: BaseTopicVM)
+
+@Composable
+expect fun M3MaterialThemeSetup(themeColors: ThemeColors, isDarkMode: Boolean, content: @Composable () -> Unit)

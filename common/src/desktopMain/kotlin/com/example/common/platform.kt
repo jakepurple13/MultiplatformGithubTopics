@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,6 +20,11 @@ actual fun getPlatformName(): String {
 }
 
 actual val refreshIcon = true
+
+@Composable
+actual fun M3MaterialThemeSetup(themeColors: ThemeColors, isDarkMode: Boolean, content: @Composable () -> Unit) {
+    MaterialTheme(colorScheme = themeColors.getThemeScheme(isDarkMode).animate(), content = content)
+}
 
 @Composable
 actual fun BoxScope.ReposScrollBar(lazyListState: LazyListState) {

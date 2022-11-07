@@ -21,7 +21,7 @@ fun Theme(
     appActions: AppActions,
     content: @Composable () -> Unit
 ) {
-    M3MaterialTheme(colorScheme = themeColors.getThemeScheme(isDarkMode).animate()) {
+    M3MaterialThemeSetup(themeColors, isDarkMode) {
         MaterialTheme(colors = themeColors.getTheme(isDarkMode).animate()) {
             CompositionLocalProvider(
                 LocalAppActions provides appActions,
@@ -63,7 +63,7 @@ private fun Colors.animate() = copy(
 )
 
 @Composable
-private fun ColorScheme.animate() = copy(
+fun ColorScheme.animate() = copy(
     primary.animate().value,
     onPrimary.animate().value,
     primaryContainer.animate().value,

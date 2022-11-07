@@ -1,12 +1,17 @@
 package com.example.common
 
+import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.accompanist.flowlayout.FlowRow
@@ -21,6 +26,18 @@ actual val refreshIcon = false
 
 @Composable
 actual fun BoxScope.ReposScrollBar(lazyListState: LazyListState) {
+}
+
+@Composable
+actual fun M3MaterialThemeSetup(themeColors: ThemeColors, isDarkMode: Boolean, content: @Composable () -> Unit) {
+    val colorScheme = if (themeColors == ThemeColors.Default) when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            val context = LocalContext.current
+            if (isDarkMode) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        }
+        else -> ThemeColors.Default.getThemeScheme(isDarkMode)
+    } else themeColors.getThemeScheme(isDarkMode)
+    MaterialTheme(colorScheme = colorScheme.animate(), content = content)
 }
 
 @Composable

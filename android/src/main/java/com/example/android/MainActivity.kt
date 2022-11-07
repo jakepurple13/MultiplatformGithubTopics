@@ -70,7 +70,11 @@ class MainActivity : ComponentActivity() {
                         arguments = listOf(navArgument("topic") { type = NavType.StringType })
                     ) {
                         GithubRepo(
-                            vm = viewModel { RepoViewModel(createSavedStateHandle().get<String>("topic").orEmpty()) },
+                            vm = viewModel {
+                                RepoViewModel(
+                                    createSavedStateHandle().get<String>("topic").orEmpty()
+                                )
+                            },
                             backAction = { navController.popBackStack() }
                         )
                     }
@@ -101,7 +105,6 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 }
-
             }
         }
     }
