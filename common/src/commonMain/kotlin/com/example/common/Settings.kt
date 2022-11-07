@@ -23,7 +23,11 @@ fun SettingsScreen(
     onModeChange: (Boolean) -> Unit,
     topPull: @Composable ColumnScope.() -> Unit = {}
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface)
+    ) {
         topPull()
         Scaffold(
             topBar = { SmallTopAppBar(title = { Text("Settings") }) }
