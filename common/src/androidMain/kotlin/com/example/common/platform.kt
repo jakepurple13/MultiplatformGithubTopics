@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.accompanist.flowlayout.FlowRow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 actual fun getPlatformName(): String {
@@ -34,50 +35,50 @@ actual fun BoxScope.LoadingIndicator(vm: BaseTopicVM) {
     }
 }
 
-class TopicViewModel : ViewModel(), BaseTopicVM by BaseTopicViewModel() {
+class TopicViewModel(s: Flow<SettingInformation>) : ViewModel(), BaseTopicVM by BaseTopicViewModel() {
 
     init {
-        /*store.data
-            .map { it.currentTopicsListList }
-            .distinctUntilChanged()
-            .onEach {
-                currentTopics.clear()
-                currentTopics.addAll(it)
-            }
-            .filter { it.isNotEmpty() && it.all { t -> t.isNotEmpty() } }
-            .onEach { refresh() }
-            .launchIn(viewModelScope)
-
-        store.data.map { it.topicListList }
+        s
+            .map { it.topicList }
             .distinctUntilChanged()
             .onEach {
                 topicList.clear()
                 topicList.addAll(it)
             }
-            .launchIn(viewModelScope)*/
+            .launchIn(viewModelScope)
+
+        s
+            .map { it.currentTopics }
+            .distinctUntilChanged()
+            .onEach {
+                currentTopics.clear()
+                currentTopics.addAll(it)
+                if (it.isNotEmpty()) refresh()
+            }
+            .launchIn(viewModelScope)
     }
 
     override fun setTopic(topic: String) {
         viewModelScope.launch {
-            currentTopics
             if (topic !in currentTopics) {
-                currentTopics.add(topic)
+                db.addCurrentTopic(topic)
             } else {
-                currentTopics.remove(topic)
+                db.removeCurrentTopic(topic)
             }
-            if (currentTopics.isNotEmpty()) refresh()
         }
     }
 
     override fun addTopic(topic: String) {
-        if (topic !in topicList && topic.isNotEmpty()) {
-            topicList.add(topic)
+        viewModelScope.launch {
+            if (topic !in topicList) {
+                db.addTopic(topic)
+            }
         }
     }
 
     override fun removeTopic(topic: String) {
         viewModelScope.launch {
-            topicList.remove(topic)
+            db.removeTopic(topic)
         }
     }
 }

@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.compose")
     id("com.android.library")
     id("kotlinx-serialization")
+    id("io.realm.kotlin")
 }
 
 group = "com.example"
@@ -32,6 +33,7 @@ kotlin {
                 api("org.ocpsoft.prettytime:prettytime:5.0.2.Final")
                 api("com.alialbaali.kamel:kamel-image:0.4.0")
                 api("com.mikepenz:multiplatform-markdown-renderer:0.6.1")
+                api("io.realm.kotlin:library-base:1.4.0")
             }
         }
         val commonTest by getting {

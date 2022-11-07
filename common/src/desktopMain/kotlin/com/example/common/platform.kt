@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 actual fun getPlatformName(): String {
@@ -41,28 +42,51 @@ actual fun BoxScope.LoadingIndicator(vm: BaseTopicVM) {
     }
 }
 
-class TopicViewModel(private val viewModelScope: CoroutineScope) : BaseTopicVM by BaseTopicViewModel() {
+class TopicViewModel(private val viewModelScope: CoroutineScope, s: Flow<SettingInformation>) :
+    BaseTopicVM by BaseTopicViewModel() {
+
+    init {
+        s
+            .map { it.topicList }
+            .distinctUntilChanged()
+            .onEach {
+                topicList.clear()
+                topicList.addAll(it)
+            }
+            .launchIn(viewModelScope)
+
+        s
+            .map { it.currentTopics }
+            .distinctUntilChanged()
+            .onEach {
+                currentTopics.clear()
+                currentTopics.addAll(it)
+                if (it.isNotEmpty()) refresh()
+            }
+            .launchIn(viewModelScope)
+    }
 
     override fun setTopic(topic: String) {
         viewModelScope.launch {
             if (topic !in currentTopics) {
-                currentTopics.add(topic)
+                db.addCurrentTopic(topic)
             } else {
-                currentTopics.remove(topic)
+                db.removeCurrentTopic(topic)
             }
-            if (currentTopics.isNotEmpty()) refresh()
         }
     }
 
     override fun addTopic(topic: String) {
-        if (topic !in topicList && topic.isNotEmpty()) {
-            topicList.add(topic)
+        viewModelScope.launch {
+            if (topic !in topicList) {
+                db.addTopic(topic)
+            }
         }
     }
 
     override fun removeTopic(topic: String) {
         viewModelScope.launch {
-            topicList.remove(topic)
+            db.removeTopic(topic)
         }
     }
 }

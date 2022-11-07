@@ -5,71 +5,94 @@ import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.MenuBar
 import androidx.compose.ui.window.application
 import com.example.common.*
+import io.realm.kotlin.ext.asFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.awt.Toolkit
 import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.StringSelection
 
+fun mains() {
+    val db = Database()
+    val info = runBlocking {
+        val f = db.realm.query<SettingInformation>(SettingInformation::class).first().find()
+        f ?: db.realm.write { copyToRealm(SettingInformation()) }
+    }
 
-fun main() = application {
-    val topic = remember { mutableStateOf<GitHubTopic?>(null) }
-    var themeColors by remember { mutableStateOf(ThemeColors.Default) }
-    var isDarkMode by remember { mutableStateOf(true) }
-    var showThemeSelector by remember { mutableStateOf(false) }
+    val s = info.asFlow().mapNotNull { it.obj }
 
-    Theme(
-        themeColors = themeColors,
-        isDarkMode = isDarkMode,
-        appActions = AppActions(
-            onCardClick = { topic.value = it },
-            onShareClick = {
-                val stringSelection = StringSelection(it.htmlUrl)
-                val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
-                clipboard.setContents(stringSelection, null)
-            }
-        )
-    ) {
-        WindowWithBar(
-            windowTitle = "GitHub Topics",
-            onCloseRequest = ::exitApplication,
-            frameWindowScope = {
-                MenuOptions(
-                    isDarkMode = isDarkMode,
-                    onModeChange = { isDarkMode = it },
-                    onShowColors = { showThemeSelector = true }
-                )
-            }
+    val isDarkModes = s
+        .map { it.isDarkMode }
+        .distinctUntilChanged()
+
+    val currentThemes = s
+        .map { it.theme }
+        .map { ThemeColors.values()[it] }
+        .distinctUntilChanged()
+
+    application {
+        val scope = rememberCoroutineScope()
+        val topic = remember { mutableStateOf<GitHubTopic?>(null) }
+        var showThemeSelector by remember { mutableStateOf(false) }
+        val themeColors by currentThemes.collectAsState(ThemeColors.Default)
+        val isDarkMode by isDarkModes.collectAsState(true)
+
+        Theme(
+            themeColors = themeColors,
+            isDarkMode = isDarkMode,
+            appActions = AppActions(
+                onCardClick = { topic.value = it },
+                onShareClick = {
+                    val stringSelection = StringSelection(it.htmlUrl)
+                    val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
+                    clipboard.setContents(stringSelection, null)
+                },
+                onSettingsClick = { showThemeSelector = true }
+            )
         ) {
-            val scope = rememberCoroutineScope()
-            App(remember { TopicViewModel(scope) })
-        }
-
-        if (topic.value != null) {
             WindowWithBar(
-                windowTitle = topic.value?.name.orEmpty(),
-                onCloseRequest = { topic.value = null },
+                windowTitle = "GitHub Topics",
+                onCloseRequest = ::exitApplication,
                 frameWindowScope = {
                     MenuOptions(
                         isDarkMode = isDarkMode,
-                        onModeChange = { isDarkMode = it },
+                        onModeChange = { scope.launch { db.changeMode(it) } },
                         onShowColors = { showThemeSelector = true }
                     )
                 }
-            ) { GithubRepo(remember { RepoViewModel(Json.encodeToString(topic.value)) }) { topic.value = null } }
-        }
+            ) { App(remember { TopicViewModel(scope, s) }) }
 
-        WindowWithBar(
-            windowTitle = "Settings",
-            onCloseRequest = { showThemeSelector = false },
-            visible = showThemeSelector
-        ) {
-            SettingsScreen(
-                currentThemeColors = themeColors,
-                setCurrentThemeColors = { themeColors = it },
-                isDarkMode = isDarkMode,
-                onModeChange = { isDarkMode = it }
-            )
+            if (topic.value != null) {
+                WindowWithBar(
+                    windowTitle = topic.value?.name.orEmpty(),
+                    onCloseRequest = { topic.value = null },
+                    frameWindowScope = {
+                        MenuOptions(
+                            isDarkMode = isDarkMode,
+                            onModeChange = { scope.launch { db.changeMode(it) } },
+                            onShowColors = { showThemeSelector = true }
+                        )
+                    }
+                ) { GithubRepo(remember { RepoViewModel(Json.encodeToString(topic.value)) }) { topic.value = null } }
+            }
+
+            WindowWithBar(
+                windowTitle = "Settings",
+                onCloseRequest = { showThemeSelector = false },
+                visible = showThemeSelector
+            ) {
+                SettingsScreen(
+                    currentThemeColors = themeColors,
+                    setCurrentThemeColors = { scope.launch { db.changeTheme(it) } },
+                    isDarkMode = isDarkMode,
+                    onModeChange = { scope.launch { db.changeMode(it) } }
+                )
+            }
         }
     }
 }

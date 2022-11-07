@@ -43,15 +43,15 @@ import androidx.compose.ui.unit.dp
 import com.mikepenz.markdown.Markdown
 import io.kamel.image.KamelImage
 import io.kamel.image.lazyPainterResource
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 
 @Immutable
 data class AppActions(
     val onCardClick: (GitHubTopic) -> Unit,
-    val onShareClick: (GitHubTopic) -> Unit
+    val onShareClick: (GitHubTopic) -> Unit,
+    val onSettingsClick: () -> Unit
 )
 
 @Composable
@@ -90,6 +90,10 @@ fun GithubTopicUI(vm: BaseTopicVM) {
                                 icon = Icons.Default.Refresh
                             )
                         }
+                        IconsButton(
+                            onClick = appActions.onSettingsClick,
+                            icon = Icons.Default.Settings
+                        )
                         AnimatedVisibility(visible = showButton) {
                             IconsButton(
                                 onClick = { scope.launch { state.animateScrollToItem(0) } },

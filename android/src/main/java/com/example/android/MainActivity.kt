@@ -6,17 +6,18 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.createSavedStateHandle
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -24,20 +25,23 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.common.*
+import io.realm.kotlin.ext.asFlow
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val db = Database()
         setContent {
+            val vm: AppViewModel = viewModel { AppViewModel(db) }
             val navController = rememberNavController()
-            var themeColors by remember { mutableStateOf(ThemeColors.Default) }
-            val defaultMode = isSystemInDarkTheme()
-            var isDarkMode by remember { mutableStateOf(defaultMode) }
+            val scope = rememberCoroutineScope()
             Theme(
-                themeColors = themeColors,
-                isDarkMode = isDarkMode,
+                themeColors = vm.themeColors,
+                isDarkMode = vm.isDarkMode,
                 appActions = AppActions(
                     onCardClick = { navController.navigate("repoReadMe" + "/${Uri.encode(Json.encodeToString(it))}") },
                     onShareClick = {
@@ -50,7 +54,8 @@ class MainActivity : ComponentActivity() {
 
                         val shareIntent = Intent.createChooser(sendIntent, null)
                         startActivity(shareIntent)
-                    }
+                    },
+                    onSettingsClick = { navController.navigate("settings") }
                 )
             ) {
                 NavHost(
@@ -58,7 +63,7 @@ class MainActivity : ComponentActivity() {
                     startDestination = "app"
                 ) {
 
-                    composable("app") { App(vm = viewModel { TopicViewModel() }) }
+                    composable("app") { App(vm = viewModel { TopicViewModel(vm.settingInformation) }) }
 
                     composable(
                         "repoReadMe" + "/{topic}",
@@ -72,10 +77,10 @@ class MainActivity : ComponentActivity() {
 
                     composable("settings") {
                         SettingsScreen(
-                            currentThemeColors = themeColors,
-                            setCurrentThemeColors = { themeColors = it },
-                            isDarkMode = isDarkMode,
-                            onModeChange = { isDarkMode = it },
+                            currentThemeColors = vm.themeColors,
+                            setCurrentThemeColors = { scope.launch { db.changeTheme(it) } },
+                            isDarkMode = vm.isDarkMode,
+                            onModeChange = { scope.launch { db.changeMode(it) } },
                             topPull = {
                                 VerticalSpacer(MaterialTheme.spacing.l)
                                 Row(
@@ -98,6 +103,39 @@ class MainActivity : ComponentActivity() {
                 }
 
             }
+        }
+    }
+}
+
+class AppViewModel(db: Database) : ViewModel() {
+
+    var themeColors by mutableStateOf(ThemeColors.Default)
+    var isDarkMode by mutableStateOf(true)
+    val settingInformation: MutableStateFlow<SettingInformation> = MutableStateFlow(SettingInformation())
+
+    init {
+        viewModelScope.launch {
+            val f = db.realm.query<SettingInformation>(SettingInformation::class).first().find()
+            val info = f ?: db.realm.write { copyToRealm(SettingInformation()) }
+
+            val s = info.asFlow().mapNotNull { it.obj }
+
+            s
+                .map { it.isDarkMode }
+                .distinctUntilChanged()
+                .onEach { isDarkMode = it }
+                .launchIn(viewModelScope)
+
+            s
+                .map { it.theme }
+                .map { ThemeColors.values()[it] }
+                .distinctUntilChanged()
+                .onEach { themeColors = it }
+                .launchIn(viewModelScope)
+
+            s
+                .onEach { settingInformation.tryEmit(it) }
+                .launchIn(viewModelScope)
         }
     }
 }

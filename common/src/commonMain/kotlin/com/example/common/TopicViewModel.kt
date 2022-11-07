@@ -18,6 +18,8 @@ class BaseTopicViewModel : BaseTopicVM {
     override val topicList = mutableStateListOf<String>()
     private var page = 1
 
+    override val db: Database by lazy { Database() }
+
     private suspend fun loadTopics() {
         isLoading = true
         withContext(Dispatchers.IO) {
@@ -48,6 +50,7 @@ interface BaseTopicVM {
     fun removeTopic(topic: String) = Unit
     suspend fun refresh() = Unit
     suspend fun newPage() = Unit
+    val db: Database
 
     val items: SnapshotStateList<GitHubTopic>
     var isLoading: Boolean

@@ -6,6 +6,13 @@ allprojects {
         google()
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots") }
+    }
+}
+
+buildscript {
+    dependencies {
+        classpath("io.realm.kotlin:gradle-plugin:1.4.0")
     }
 }
 
