@@ -85,6 +85,7 @@ fun GithubTopicUI(vm: BaseTopicVM) {
                     },
                     title = { Text(text = "Github Topics") },
                     actions = {
+                        Text("Page: ${vm.page}")
                         if (refreshIcon) {
                             IconsButton(
                                 onClick = { scope.launch { vm.refresh() } },
@@ -138,6 +139,7 @@ fun TopicContent(
         ) {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(2.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxSize(),
                 state = state
             ) {
@@ -150,6 +152,14 @@ fun TopicContent(
                         onTopicClick = vm::addTopic
                     )
                 }
+
+                item {
+                    val scope = rememberCoroutineScope()
+                    ElevatedButton(
+                        onClick = { scope.launch { vm.newPage() } },
+                        enabled = !vm.isLoading,
+                    ) { Text("Load More") }
+                }
             }
 
             ReposScrollBar(state)
@@ -158,7 +168,8 @@ fun TopicContent(
 
             InfiniteListHandler(
                 listState = state,
-                onLoadMore = vm::newPage
+                onLoadMore = vm::newPage,
+                buffer = 3
             )
         }
     }

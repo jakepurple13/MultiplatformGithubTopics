@@ -16,7 +16,7 @@ class BaseTopicViewModel : BaseTopicVM {
     override var isLoading by mutableStateOf(true)
     override val currentTopics = mutableStateListOf<String>()
     override val topicList = mutableStateListOf<String>()
-    private var page = 1
+    override var page by mutableStateOf(1)
 
     override val db: Database by lazy { Database() }
 
@@ -56,6 +56,7 @@ interface BaseTopicVM {
     var isLoading: Boolean
     val currentTopics: SnapshotStateList<String>
     val topicList: SnapshotStateList<String>
+    val page: Int
 }
 
 class BaseRepoViewModel(
