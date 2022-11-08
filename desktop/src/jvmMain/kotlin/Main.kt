@@ -37,7 +37,7 @@ fun mains() {
 
     application {
         val scope = rememberCoroutineScope()
-        val topic = remember { mutableStateOf<GitHubTopic?>(null) }
+        var topic by remember { mutableStateOf<GitHubTopic?>(null) }
         var showThemeSelector by remember { mutableStateOf(false) }
         val themeColors by currentThemes.collectAsState(ThemeColors.Default)
         val isDarkMode by isDarkModes.collectAsState(true)
@@ -46,7 +46,7 @@ fun mains() {
             themeColors = themeColors,
             isDarkMode = isDarkMode,
             appActions = AppActions(
-                onCardClick = { topic.value = it },
+                onCardClick = { topic = it },
                 onShareClick = {
                     val stringSelection = StringSelection(it.htmlUrl)
                     val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
@@ -67,10 +67,10 @@ fun mains() {
                 }
             ) { App(remember { TopicViewModel(scope, s) }) }
 
-            if (topic.value != null) {
+            if (topic != null) {
                 WindowWithBar(
-                    windowTitle = topic.value?.name.orEmpty(),
-                    onCloseRequest = { topic.value = null },
+                    windowTitle = topic?.name.orEmpty(),
+                    onCloseRequest = { topic = null },
                     frameWindowScope = {
                         MenuOptions(
                             isDarkMode = isDarkMode,
@@ -78,7 +78,12 @@ fun mains() {
                             onShowColors = { showThemeSelector = true }
                         )
                     }
-                ) { GithubRepo(remember { RepoViewModel(Json.encodeToString(topic.value)) }) { topic.value = null } }
+                ) {
+                    GithubRepo(
+                        vm = remember { RepoViewModel(Json.encodeToString(topic)) },
+                        backAction = { topic = null }
+                    )
+                }
             }
 
             WindowWithBar(

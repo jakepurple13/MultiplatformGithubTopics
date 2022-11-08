@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -58,7 +59,10 @@ fun SettingsScreen(
                     modifier = Modifier.padding(horizontal = 2.dp)
                 )
 
-                Text("Select Theme")
+                Text(
+                    "Select Theme",
+                    modifier = Modifier.padding(horizontal = 2.dp)
+                )
 
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.s),
@@ -105,6 +109,14 @@ fun SettingsScreen(
                         }
                     }
                 }
+                Divider()
+                Column(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Version: ${AppInfo.VERSION}")
+                    Text(getPlatformName())
+                }
             }
         }
     }
@@ -115,8 +127,7 @@ fun ColorBox(color: Color) {
     Box(
         Modifier
             .background(color)
-            .width(40.dp)
-            .height(40.dp)
+            .size(40.dp)
     )
 }
 
