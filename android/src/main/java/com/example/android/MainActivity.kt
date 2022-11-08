@@ -13,13 +13,13 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -71,6 +71,15 @@ class MainActivity : ComponentActivity() {
                     onSettingsClick = { navController.navigate(Screen.Settings.route) }
                 )
             ) {
+                val view = LocalView.current
+                val primary = MaterialTheme.colorScheme.primary
+                if (!view.isInEditMode) {
+                    SideEffect {
+                        window.statusBarColor = primary.toArgb()
+                        WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = vm.isDarkMode
+                    }
+                }
+
                 ModalBottomSheetLayout(
                     bottomSheetNavigator,
                     sheetBackgroundColor = MaterialTheme.colorScheme.background,
