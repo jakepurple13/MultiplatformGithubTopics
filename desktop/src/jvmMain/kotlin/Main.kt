@@ -56,6 +56,18 @@ fun mains() {
             )
         ) {
             WindowWithBar(
+                windowTitle = "GitHub Topics",
+                onCloseRequest = ::exitApplication,
+                frameWindowScope = {
+                    MenuOptions(
+                        isDarkMode = isDarkMode,
+                        onModeChange = { scope.launch { db.changeMode(it) } },
+                        onShowColors = { showThemeSelector = true }
+                    )
+                }
+            ) { App(remember { TopicViewModel(scope, s) }) }
+
+            WindowWithBar(
                 windowTitle = "Settings",
                 onCloseRequest = { showThemeSelector = false },
                 visible = showThemeSelector
@@ -67,18 +79,6 @@ fun mains() {
                     onModeChange = { scope.launch { db.changeMode(it) } }
                 )
             }
-
-            WindowWithBar(
-                windowTitle = "GitHub Topics",
-                onCloseRequest = ::exitApplication,
-                frameWindowScope = {
-                    MenuOptions(
-                        isDarkMode = isDarkMode,
-                        onModeChange = { scope.launch { db.changeMode(it) } },
-                        onShowColors = { showThemeSelector = true }
-                    )
-                }
-            ) { App(remember { TopicViewModel(scope, s) }) }
 
             vm.repoWindows.forEach { topic ->
                 WindowWithBar(
