@@ -53,7 +53,7 @@ actual fun BoxScope.ScrollBar(scrollState: ScrollState) {
 
 @Composable
 actual fun ChipLayout(modifier: Modifier, content: @Composable () -> Unit) {
-
+    FlowRow(modifier = modifier, content = content)
 }
 
 @Composable
