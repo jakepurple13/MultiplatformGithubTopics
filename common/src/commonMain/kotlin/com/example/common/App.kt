@@ -2,6 +2,7 @@ package com.example.common
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -214,7 +215,8 @@ fun TopicItem(
                         KamelImage(
                             lazyPainterResource(item.owner.avatarUrl.orEmpty()),
                             modifier = Modifier.size(48.dp),
-                            contentDescription = null
+                            contentDescription = null,
+                            animationSpec = tween()
                         )
                     }
                 },
