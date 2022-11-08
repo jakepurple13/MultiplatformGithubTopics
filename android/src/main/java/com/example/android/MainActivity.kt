@@ -54,7 +54,9 @@ class MainActivity : ComponentActivity() {
                 themeColors = vm.themeColors,
                 isDarkMode = vm.isDarkMode,
                 appActions = AppActions(
-                    onCardClick = { navController.navigate("repoReadMe" + "/${Uri.encode(Json.encodeToString(it))}") },
+                    onCardClick = {
+                        navController.navigate(Screen.RepoReadMe.route + "/${Uri.encode(Json.encodeToString(it))}")
+                    },
                     onShareClick = {
                         val sendIntent: Intent = Intent().apply {
                             action = Intent.ACTION_SEND
@@ -66,7 +68,7 @@ class MainActivity : ComponentActivity() {
                         val shareIntent = Intent.createChooser(sendIntent, null)
                         startActivity(shareIntent)
                     },
-                    onSettingsClick = { navController.navigate("settings") }
+                    onSettingsClick = { navController.navigate(Screen.Settings.route) }
                 )
             ) {
                 ModalBottomSheetLayout(
@@ -76,13 +78,13 @@ class MainActivity : ComponentActivity() {
                 ) {
                     NavHost(
                         navController = navController,
-                        startDestination = "app"
+                        startDestination = Screen.App.route
                     ) {
 
-                        composable("app") { App(vm = viewModel { TopicViewModel(vm.settingInformation) }) }
+                        composable(Screen.App.route) { App(vm = viewModel { TopicViewModel(vm.settingInformation) }) }
 
                         composable(
-                            "repoReadMe" + "/{topic}",
+                            Screen.RepoReadMe.route + "/{topic}",
                             arguments = listOf(navArgument("topic") { type = NavType.StringType })
                         ) {
                             GithubRepo(
@@ -95,7 +97,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        bottomSheet("settings") {
+                        bottomSheet(Screen.Settings.route) {
                             val context = LocalContext.current
                             SettingsScreen(
                                 currentThemeColors = vm.themeColors,
@@ -166,4 +168,10 @@ class AppViewModel(db: Database) : ViewModel() {
                 .launchIn(viewModelScope)
         }
     }
+}
+
+sealed class Screen(val route: String) {
+    object App : Screen("app")
+    object RepoReadMe : Screen("repoReadMe")
+    object Settings : Screen("settings")
 }
