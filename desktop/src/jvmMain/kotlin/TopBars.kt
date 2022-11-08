@@ -47,7 +47,8 @@ fun ApplicationScope.WindowWithBar(
                 OS.MacOS -> RoundedCornerShape(8.dp)
                 else -> RoundedCornerShape(8.dp)
             },
-            modifier = Modifier.animateContentSize()
+            modifier = Modifier.animateContentSize(),
+            border = ButtonDefaults.outlinedButtonBorder
         ) {
             Scaffold(
                 topBar = {

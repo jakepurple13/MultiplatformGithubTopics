@@ -6,6 +6,7 @@ import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material3.CircularProgressIndicator
@@ -13,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -35,6 +37,7 @@ actual fun BoxScope.ReposScrollBar(lazyListState: LazyListState) {
         modifier = Modifier
             .align(Alignment.CenterEnd)
             .fillMaxHeight()
+            .padding(end = 4.dp)
     )
 }
 

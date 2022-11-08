@@ -36,8 +36,8 @@ fun mains() {
         .distinctUntilChanged()
 
     application {
+        val vm = remember { AppViewModel() }
         val scope = rememberCoroutineScope()
-        var topic by remember { mutableStateOf<GitHubTopic?>(null) }
         var showThemeSelector by remember { mutableStateOf(false) }
         val themeColors by currentThemes.collectAsState(ThemeColors.Default)
         val isDarkMode by isDarkModes.collectAsState(true)
@@ -46,7 +46,7 @@ fun mains() {
             themeColors = themeColors,
             isDarkMode = isDarkMode,
             appActions = AppActions(
-                onCardClick = { topic = it },
+                onCardClick = vm::newWindow,
                 onShareClick = {
                     val stringSelection = StringSelection(it.htmlUrl)
                     val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
@@ -55,6 +55,19 @@ fun mains() {
                 onSettingsClick = { showThemeSelector = true }
             )
         ) {
+            WindowWithBar(
+                windowTitle = "Settings",
+                onCloseRequest = { showThemeSelector = false },
+                visible = showThemeSelector
+            ) {
+                SettingsScreen(
+                    currentThemeColors = themeColors,
+                    setCurrentThemeColors = { scope.launch { db.changeTheme(it) } },
+                    isDarkMode = isDarkMode,
+                    onModeChange = { scope.launch { db.changeMode(it) } }
+                )
+            }
+
             WindowWithBar(
                 windowTitle = "GitHub Topics",
                 onCloseRequest = ::exitApplication,
@@ -67,10 +80,10 @@ fun mains() {
                 }
             ) { App(remember { TopicViewModel(scope, s) }) }
 
-            if (topic != null) {
+            vm.repoWindows.forEach { topic ->
                 WindowWithBar(
-                    windowTitle = topic?.name.orEmpty(),
-                    onCloseRequest = { topic = null },
+                    windowTitle = topic.name,
+                    onCloseRequest = { vm.closeWindow(topic) },
                     frameWindowScope = {
                         MenuOptions(
                             isDarkMode = isDarkMode,
@@ -81,22 +94,9 @@ fun mains() {
                 ) {
                     GithubRepo(
                         vm = remember { RepoViewModel(Json.encodeToString(topic)) },
-                        backAction = { topic = null }
+                        backAction = { vm.closeWindow(topic) }
                     )
                 }
-            }
-
-            WindowWithBar(
-                windowTitle = "Settings",
-                onCloseRequest = { showThemeSelector = false },
-                visible = showThemeSelector
-            ) {
-                SettingsScreen(
-                    currentThemeColors = themeColors,
-                    setCurrentThemeColors = { scope.launch { db.changeTheme(it) } },
-                    isDarkMode = isDarkMode,
-                    onModeChange = { scope.launch { db.changeMode(it) } }
-                )
             }
         }
     }
@@ -122,4 +122,18 @@ private fun FrameWindowScope.MenuOptions(
             )
         }
     }
+}
+
+class AppViewModel {
+
+    val repoWindows = mutableStateListOf<GitHubTopic>()
+
+    fun newWindow(topic: GitHubTopic) {
+        repoWindows.add(topic)
+    }
+
+    fun closeWindow(topic: GitHubTopic) {
+        repoWindows.remove(topic)
+    }
+
 }
