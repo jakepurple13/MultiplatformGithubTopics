@@ -3,6 +3,7 @@ package com.example.common
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
@@ -40,6 +41,14 @@ actual fun BoxScope.ReposScrollBar(lazyListState: LazyListState) {
 actual fun ChipLayout(modifier: Modifier, content: @Composable () -> Unit) {
 
 }
+
+@Composable
+actual fun SwipeRefreshWrapper(
+    paddingValues: PaddingValues,
+    isRefreshing: Boolean,
+    onRefresh: suspend () -> Unit,
+    content: @Composable () -> Unit
+) = content()
 
 @Composable
 actual fun BoxScope.LoadingIndicator(vm: BaseTopicVM) {

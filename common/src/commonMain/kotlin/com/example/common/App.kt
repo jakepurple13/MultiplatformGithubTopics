@@ -125,35 +125,41 @@ fun TopicContent(
     onCardClick: (GitHubTopic) -> Unit,
     vm: BaseTopicVM
 ) {
-    Box(
-        modifier = modifier
-            .padding(padding)
-            .padding(vertical = 2.dp)
+    SwipeRefreshWrapper(
+        paddingValues = padding,
+        isRefreshing = vm.isLoading,
+        onRefresh = vm::refresh
     ) {
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-            modifier = Modifier.fillMaxSize(),
-            state = state
+        Box(
+            modifier = modifier
+                .padding(padding)
+                .padding(vertical = 2.dp)
         ) {
-            items(vm.items) {
-                TopicItem(
-                    item = it,
-                    savedTopics = vm.topicList,
-                    currentTopics = vm.currentTopics,
-                    onCardClick = onCardClick,
-                    onTopicClick = vm::addTopic
-                )
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+                modifier = Modifier.fillMaxSize(),
+                state = state
+            ) {
+                items(vm.items) {
+                    TopicItem(
+                        item = it,
+                        savedTopics = vm.topicList,
+                        currentTopics = vm.currentTopics,
+                        onCardClick = onCardClick,
+                        onTopicClick = vm::addTopic
+                    )
+                }
             }
+
+            ReposScrollBar(state)
+
+            LoadingIndicator(vm)
+
+            InfiniteListHandler(
+                listState = state,
+                onLoadMore = vm::newPage
+            )
         }
-
-        ReposScrollBar(state)
-
-        LoadingIndicator(vm)
-
-        InfiniteListHandler(
-            listState = state,
-            onLoadMore = vm::newPage
-        )
     }
 }
 

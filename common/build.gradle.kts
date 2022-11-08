@@ -51,6 +51,7 @@ kotlin {
                 api("com.google.accompanist:accompanist-flowlayout:0.27.0")
                 api("com.google.accompanist:accompanist-navigation-material:0.27.0")
                 api("androidx.navigation:navigation-compose:2.5.3")
+                api("com.google.accompanist:accompanist-swiperefresh:0.27.0")
             }
         }
         val androidTest by getting {

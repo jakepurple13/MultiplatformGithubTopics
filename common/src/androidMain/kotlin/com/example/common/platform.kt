@@ -1,20 +1,21 @@
 package com.example.common
 
 import android.os.Build
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.accompanist.flowlayout.FlowRow
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -46,10 +47,23 @@ actual fun ChipLayout(modifier: Modifier, content: @Composable () -> Unit) {
 }
 
 @Composable
+actual fun SwipeRefreshWrapper(
+    paddingValues: PaddingValues,
+    isRefreshing: Boolean,
+    onRefresh: suspend () -> Unit,
+    content: @Composable () -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(isRefreshing),
+        onRefresh = { scope.launch { onRefresh() } },
+        indicatorPadding = paddingValues,
+        content = content
+    )
+}
+
+@Composable
 actual fun BoxScope.LoadingIndicator(vm: BaseTopicVM) {
-    AnimatedVisibility(vm.isLoading, modifier = Modifier.align(Alignment.TopCenter)) {
-        CircularProgressIndicator(modifier = Modifier.align(Alignment.TopCenter))
-    }
 }
 
 class TopicViewModel(s: Flow<SettingInformation>) : ViewModel(), BaseTopicVM by BaseTopicViewModel() {
