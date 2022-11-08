@@ -395,21 +395,22 @@ fun GithubRepo(
             )
         },
         bottomBar = {
-            BottomAppBar {
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { appActions.onShareClick(vm.item) },
-                    icon = { Icon(Icons.Default.Share, null) },
-                    label = { Text("Share") }
-                )
-
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { uriHandler.openUri(vm.item.htmlUrl) },
-                    icon = { Icon(Icons.Default.OpenInBrowser, null) },
-                    label = { Text("Open in Browser") }
-                )
-            }
+            BottomAppBar(
+                floatingActionButton = {
+                    ExtendedFloatingActionButton(
+                        text = { Text("Open in Browser") },
+                        icon = { Icon(Icons.Default.OpenInBrowser, null) },
+                        onClick = { uriHandler.openUri(vm.item.htmlUrl) })
+                },
+                icons = {
+                    NavigationBarItem(
+                        selected = false,
+                        onClick = { appActions.onShareClick(vm.item) },
+                        icon = { Icon(Icons.Default.Share, null) },
+                        label = { Text("Share") }
+                    )
+                }
+            )
         },
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { padding ->

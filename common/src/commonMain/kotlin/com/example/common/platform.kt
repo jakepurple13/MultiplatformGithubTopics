@@ -1,5 +1,6 @@
 package com.example.common
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyListState
@@ -12,6 +13,9 @@ expect val refreshIcon: Boolean
 
 @Composable
 expect fun BoxScope.ReposScrollBar(lazyListState: LazyListState)
+
+@Composable
+expect fun BoxScope.ScrollBar(scrollState: ScrollState)
 
 @Composable
 expect fun ChipLayout(modifier: Modifier = Modifier, content: @Composable () -> Unit)

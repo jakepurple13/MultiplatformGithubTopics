@@ -1,6 +1,7 @@
 package com.example.common
 
 import android.os.Build
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyListState
@@ -27,6 +28,10 @@ actual val refreshIcon = false
 
 @Composable
 actual fun BoxScope.ReposScrollBar(lazyListState: LazyListState) {
+}
+
+@Composable
+actual fun BoxScope.ScrollBar(scrollState: ScrollState) {
 }
 
 @Composable

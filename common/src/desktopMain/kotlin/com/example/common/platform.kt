@@ -1,6 +1,7 @@
 package com.example.common
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -31,6 +32,16 @@ actual fun M3MaterialThemeSetup(themeColors: ThemeColors, isDarkMode: Boolean, c
 actual fun BoxScope.ReposScrollBar(lazyListState: LazyListState) {
     VerticalScrollbar(
         adapter = rememberScrollbarAdapter(lazyListState),
+        modifier = Modifier
+            .align(Alignment.CenterEnd)
+            .fillMaxHeight()
+    )
+}
+
+@Composable
+actual fun BoxScope.ScrollBar(scrollState: ScrollState) {
+    VerticalScrollbar(
+        adapter = rememberScrollbarAdapter(scrollState),
         modifier = Modifier
             .align(Alignment.CenterEnd)
             .fillMaxHeight()
