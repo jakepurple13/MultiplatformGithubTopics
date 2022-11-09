@@ -171,7 +171,6 @@ fun TopicContent(
                 InfiniteListHandler(
                     listState = state,
                     onLoadMore = vm::newPage,
-                    buffer = 3
                 )
             }
         }
