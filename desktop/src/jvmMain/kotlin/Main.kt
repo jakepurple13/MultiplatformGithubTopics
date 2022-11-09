@@ -2,6 +2,9 @@
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.MenuBar
 import androidx.compose.ui.window.application
@@ -14,6 +17,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.jetbrains.skiko.OS
+import org.jetbrains.skiko.hostOs
 import java.awt.Toolkit
 import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.StringSelection
@@ -66,6 +71,7 @@ fun mains() {
                 onSettingsClick = { showThemeSelector = true }
             )
         ) {
+            val topicViewModel = remember { TopicViewModel(scope, s) }
             WindowWithBar(
                 windowTitle = "GitHub Topics",
                 onCloseRequest = ::exitApplication,
@@ -74,10 +80,11 @@ fun mains() {
                     MenuOptions(
                         isDarkMode = isDarkMode,
                         onModeChange = { scope.launch { db.changeMode(it) } },
-                        onShowColors = { showThemeSelector = true }
+                        onShowColors = { showThemeSelector = true },
+                        refresh = { scope.launch { topicViewModel.refresh() } }
                     )
                 }
-            ) { App(remember { TopicViewModel(scope, s) }) }
+            ) { App(topicViewModel) }
 
             WindowWithBar(
                 windowTitle = "Settings",
@@ -126,11 +133,13 @@ fun mains() {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun FrameWindowScope.MenuOptions(
     isDarkMode: Boolean,
     onModeChange: (Boolean) -> Unit,
-    onShowColors: () -> Unit
+    onShowColors: () -> Unit,
+    refresh: (() -> Unit)? = null
 ) {
     MenuBar {
         Menu("Theme", mnemonic = 'T') {
@@ -144,6 +153,20 @@ private fun FrameWindowScope.MenuOptions(
                 "Colors",
                 onClick = onShowColors
             )
+        }
+
+        refresh?.let { r ->
+            Menu("Options") {
+                Item(
+                    "Refresh",
+                    onClick = r,
+                    shortcut = KeyShortcut(
+                        meta = hostOs == OS.MacOS,
+                        ctrl = hostOs == OS.Windows || hostOs == OS.Linux,
+                        key = Key.R
+                    )
+                )
+            }
         }
     }
 }
