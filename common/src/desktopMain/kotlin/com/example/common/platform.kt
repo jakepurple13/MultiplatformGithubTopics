@@ -1,19 +1,18 @@
 package com.example.common
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.VerticalScrollbar
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import com.mikepenz.markdown.Markdown
 import kotlinx.coroutines.CoroutineScope
@@ -28,6 +27,22 @@ actual fun getPlatformName(): String {
 actual val refreshIcon = true
 
 actual val useInfiniteLoader = false
+
+@Composable
+actual fun TopicItemModification(item: GitHubTopic, content: @Composable () -> Unit) {
+    val actions = LocalAppActions.current
+    val uriHandler = LocalUriHandler.current
+    ContextMenuArea(
+        items = {
+            listOf(
+                ContextMenuItem("Open") { actions.onCardClick(item) },
+                ContextMenuItem("Open in Browser") { uriHandler.openUri(item.htmlUrl) },
+                ContextMenuItem("Share") { actions.onShareClick(item) },
+            )
+        },
+        content = content
+    )
+}
 
 @Composable
 actual fun M3MaterialThemeSetup(themeColors: ThemeColors, isDarkMode: Boolean, content: @Composable () -> Unit) {

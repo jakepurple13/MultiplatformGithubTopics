@@ -143,13 +143,15 @@ fun TopicContent(
                 state = state
             ) {
                 items(vm.items) {
-                    TopicItem(
-                        item = it,
-                        savedTopics = vm.topicList,
-                        currentTopics = vm.currentTopics,
-                        onCardClick = onCardClick,
-                        onTopicClick = vm::addTopic
-                    )
+                    TopicItemModification(item = it) {
+                        TopicItem(
+                            item = it,
+                            savedTopics = vm.topicList,
+                            currentTopics = vm.currentTopics,
+                            onCardClick = onCardClick,
+                            onTopicClick = vm::addTopic
+                        )
+                    }
                 }
 
                 item {

@@ -56,6 +56,11 @@ actual val refreshIcon = false
 actual val useInfiniteLoader = true
 
 @Composable
+actual fun TopicItemModification(item: GitHubTopic, content: @Composable () -> Unit) {
+    content()
+}
+
+@Composable
 actual fun BoxScope.ReposScrollBar(lazyListState: LazyListState) {
 }
 
