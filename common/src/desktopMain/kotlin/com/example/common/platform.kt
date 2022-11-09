@@ -15,9 +15,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.mikepenz.markdown.Markdown
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+
 
 actual fun getPlatformName(): String {
     return "Desktop"
@@ -69,6 +71,14 @@ actual fun BoxScope.LoadingIndicator(vm: BaseTopicVM) {
     AnimatedVisibility(vm.isLoading, modifier = Modifier.align(Alignment.TopCenter)) {
         CircularProgressIndicator(modifier = Modifier.align(Alignment.TopCenter))
     }
+}
+
+@Composable
+actual fun MarkdownText(text: String, modifier: Modifier) {
+    Markdown(
+        content = text,
+        modifier = modifier
+    )
 }
 
 class TopicViewModel(private val viewModelScope: CoroutineScope, s: Flow<SettingInformation>) :

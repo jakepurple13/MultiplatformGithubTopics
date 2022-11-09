@@ -33,3 +33,6 @@ expect fun SwipeRefreshWrapper(
 
 @Composable
 expect fun M3MaterialThemeSetup(themeColors: ThemeColors, isDarkMode: Boolean, content: @Composable () -> Unit)
+
+@Composable
+expect fun MarkdownText(text: String, modifier: Modifier = Modifier)

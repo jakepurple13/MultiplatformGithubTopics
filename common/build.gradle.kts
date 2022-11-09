@@ -1,9 +1,12 @@
+import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency
+
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose")
     id("com.android.library")
     id("kotlinx-serialization")
     id("io.realm.kotlin")
+    kotlin("kapt")
 }
 
 group = "com.example"
@@ -48,10 +51,31 @@ kotlin {
                 api("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
                 api("androidx.lifecycle:lifecycle-runtime-compose:2.6.0-alpha03")
                 api("io.coil-kt:coil-compose:2.2.2")
+                api("io.coil-kt:coil-gif:2.2.2")
                 api("com.google.accompanist:accompanist-flowlayout:0.27.0")
                 api("com.google.accompanist:accompanist-navigation-material:0.27.0")
                 api("androidx.navigation:navigation-compose:2.5.3")
                 api("com.google.accompanist:accompanist-swiperefresh:0.27.0")
+
+                val markwon_version = "4.6.2"
+                api("io.noties.markwon:core:$markwon_version")
+                api("io.noties.markwon:ext-strikethrough:$markwon_version")
+                api("io.noties.markwon:ext-tables:$markwon_version")
+                api("io.noties.markwon:html:$markwon_version")
+                api("io.noties.markwon:linkify:$markwon_version")
+                api("io.noties.markwon:image-coil:$markwon_version")
+                api("io.noties.markwon:syntax-highlight:$markwon_version") {
+                    exclude("org.jetbrains", "annotations-java5")
+                }
+                configurations["kapt"].dependencies.add(
+                    DefaultExternalModuleDependency(
+                        "io.noties",
+                        "prism4j-bundler",
+                        "2.0.0"
+                    )
+                )
+
+                api("pl.droidsonroids.gif:android-gif-drawable:1.2.25")
             }
         }
         val androidTest by getting {
@@ -62,6 +86,7 @@ kotlin {
         val desktopMain by getting {
             dependencies {
                 api(compose.preview)
+                api("org.jetbrains.kotlinx:kotlinx-html-jvm:0.8.0")
             }
         }
         val desktopTest by getting

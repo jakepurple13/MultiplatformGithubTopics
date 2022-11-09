@@ -41,7 +41,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import com.mikepenz.markdown.Markdown
 import io.kamel.image.KamelImage
 import io.kamel.image.lazyPainterResource
 import kotlinx.coroutines.flow.*
@@ -448,8 +447,8 @@ fun GithubRepo(
                             .padding(padding)
                             .verticalScroll(rememberScrollState())
                     ) {
-                        Markdown(
-                            content = content.content,
+                        MarkdownText(
+                            text = content.content,
                             modifier = Modifier.padding(4.dp)
                         )
                     }
