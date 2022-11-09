@@ -75,7 +75,7 @@ fun GithubTopicUI(vm: BaseTopicVM) {
     ) {
         Scaffold(
             topBar = {
-                CenterAlignedTopAppBar(
+                SmallTopAppBar(
                     navigationIcon = {
                         IconsButton(
                             onClick = { scope.launch { drawerState.open() } },
@@ -377,7 +377,6 @@ fun GithubRepo(
 ) {
     val appActions = LocalAppActions.current
     val uriHandler = LocalUriHandler.current
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarScrollState())
 
     LaunchedEffect(Unit) { vm.load() }
 
@@ -401,7 +400,6 @@ fun GithubRepo(
                         colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                     )
                 },
-                scrollBehavior = scrollBehavior
             )
         },
         bottomBar = {
@@ -421,8 +419,7 @@ fun GithubRepo(
                     )
                 }
             )
-        },
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+        }
     ) { padding ->
         Crossfade(targetState = vm.repoContent) { content ->
             when (content) {
