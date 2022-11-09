@@ -1,5 +1,6 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.MenuBar
@@ -16,6 +17,7 @@ import kotlinx.serialization.json.Json
 import java.awt.Toolkit
 import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.StringSelection
+
 
 fun mains() {
     val db = Database()
@@ -41,6 +43,16 @@ fun mains() {
         var showThemeSelector by remember { mutableStateOf(false) }
         val themeColors by currentThemes.collectAsState(ThemeColors.Default)
         val isDarkMode by isDarkModes.collectAsState(true)
+        val snackbarHostState = remember { SnackbarHostState() }
+
+        val shareAction: (GitHubTopic) -> Unit = remember {
+            {
+                val stringSelection = StringSelection(it.htmlUrl)
+                val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
+                clipboard.setContents(stringSelection, null)
+                Toolkit.getDefaultToolkit().beep()
+            }
+        }
 
         Theme(
             themeColors = themeColors,
@@ -48,9 +60,8 @@ fun mains() {
             appActions = AppActions(
                 onCardClick = vm::newWindow,
                 onShareClick = {
-                    val stringSelection = StringSelection(it.htmlUrl)
-                    val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
-                    clipboard.setContents(stringSelection, null)
+                    shareAction(it)
+                    scope.launch { snackbarHostState.showSnackbar("Copied") }
                 },
                 onSettingsClick = { showThemeSelector = true }
             )
@@ -58,6 +69,7 @@ fun mains() {
             WindowWithBar(
                 windowTitle = "GitHub Topics",
                 onCloseRequest = ::exitApplication,
+                snackbarHostState = snackbarHostState,
                 frameWindowScope = {
                     MenuOptions(
                         isDarkMode = isDarkMode,
@@ -81,21 +93,33 @@ fun mains() {
             }
 
             vm.repoWindows.forEach { topic ->
-                WindowWithBar(
-                    windowTitle = topic.name,
-                    onCloseRequest = { vm.closeWindow(topic) },
-                    frameWindowScope = {
-                        MenuOptions(
-                            isDarkMode = isDarkMode,
-                            onModeChange = { scope.launch { db.changeMode(it) } },
-                            onShowColors = { showThemeSelector = true }
+                val topicSnackbarHostState = remember { SnackbarHostState() }
+
+                CompositionLocalProvider(
+                    LocalAppActions provides LocalAppActions.current.copy(
+                        onShareClick = {
+                            shareAction(it)
+                            scope.launch { topicSnackbarHostState.showSnackbar("Copied") }
+                        }
+                    )
+                ) {
+                    WindowWithBar(
+                        windowTitle = topic.name,
+                        onCloseRequest = { vm.closeWindow(topic) },
+                        snackbarHostState = topicSnackbarHostState,
+                        frameWindowScope = {
+                            MenuOptions(
+                                isDarkMode = isDarkMode,
+                                onModeChange = { scope.launch { db.changeMode(it) } },
+                                onShowColors = { showThemeSelector = true }
+                            )
+                        }
+                    ) {
+                        GithubRepo(
+                            vm = remember { RepoViewModel(Json.encodeToString(topic)) },
+                            backAction = { vm.closeWindow(topic) }
                         )
                     }
-                ) {
-                    GithubRepo(
-                        vm = remember { RepoViewModel(Json.encodeToString(topic)) },
-                        backAction = { vm.closeWindow(topic) }
-                    )
                 }
             }
         }

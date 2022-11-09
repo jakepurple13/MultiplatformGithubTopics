@@ -32,6 +32,7 @@ fun ApplicationScope.WindowWithBar(
     onCloseRequest: () -> Unit,
     visible: Boolean = true,
     windowTitle: String = "",
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     bottomBar: @Composable () -> Unit = {},
     frameWindowScope: @Composable FrameWindowScope.() -> Unit = {},
     content: @Composable () -> Unit
@@ -94,7 +95,13 @@ fun ApplicationScope.WindowWithBar(
                     }
                 },
                 containerColor = M3MaterialTheme.colorScheme.surface,
-                bottomBar = bottomBar
+                bottomBar = bottomBar,
+                snackbarHost = {
+                    SnackbarHost(
+                        hostState = snackbarHostState,
+                        snackbar = { Snackbar(snackbarData = it) }
+                    )
+                }
             ) { padding -> Surface(modifier = Modifier.padding(padding)) { content() } }
         }
     }
