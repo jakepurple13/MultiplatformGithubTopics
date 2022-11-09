@@ -165,11 +165,13 @@ fun TopicContent(
 
             LoadingIndicator(vm)
 
-            InfiniteListHandler(
-                listState = state,
-                onLoadMore = vm::newPage,
-                buffer = 3
-            )
+            if (useInfiniteLoader) {
+                InfiniteListHandler(
+                    listState = state,
+                    onLoadMore = vm::newPage,
+                    buffer = 3
+                )
+            }
         }
     }
 }

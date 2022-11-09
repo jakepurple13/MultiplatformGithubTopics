@@ -53,6 +53,8 @@ actual fun getPlatformName(): String {
 
 actual val refreshIcon = false
 
+actual val useInfiniteLoader = true
+
 @Composable
 actual fun BoxScope.ReposScrollBar(lazyListState: LazyListState) {
 }

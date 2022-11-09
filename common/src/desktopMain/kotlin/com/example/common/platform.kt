@@ -27,6 +27,8 @@ actual fun getPlatformName(): String {
 
 actual val refreshIcon = true
 
+actual val useInfiniteLoader = false
+
 @Composable
 actual fun M3MaterialThemeSetup(themeColors: ThemeColors, isDarkMode: Boolean, content: @Composable () -> Unit) {
     MaterialTheme(colorScheme = themeColors.getThemeScheme(isDarkMode).animate(), content = content)

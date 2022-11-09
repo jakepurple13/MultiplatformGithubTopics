@@ -11,6 +11,8 @@ expect fun getPlatformName(): String
 
 expect val refreshIcon: Boolean
 
+expect val useInfiniteLoader: Boolean
+
 @Composable
 expect fun BoxScope.ReposScrollBar(lazyListState: LazyListState)
 
