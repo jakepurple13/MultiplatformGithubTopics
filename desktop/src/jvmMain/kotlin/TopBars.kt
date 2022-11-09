@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import org.jetbrains.skiko.OS
@@ -45,6 +46,7 @@ fun ApplicationScope.WindowWithBar(
         visible = visible
     ) {
         frameWindowScope()
+        val hasFocus = LocalWindowInfo.current.isWindowFocused
         Surface(
             shape = when (hostOs) {
                 OS.Linux -> RoundedCornerShape(8.dp)
@@ -53,7 +55,7 @@ fun ApplicationScope.WindowWithBar(
                 else -> RoundedCornerShape(8.dp)
             },
             modifier = Modifier.animateContentSize(),
-            border = ButtonDefaults.outlinedButtonBorder
+            border = ButtonDefaults.outlinedButtonBorder,
         ) {
             Scaffold(
                 topBar = {
@@ -74,7 +76,10 @@ fun ApplicationScope.WindowWithBar(
                             )
                         ) {
                             TopAppBar(
-                                backgroundColor = M3MaterialTheme.colorScheme.surface,
+                                backgroundColor = animateColorAsState(
+                                    if (hasFocus) M3MaterialTheme.colorScheme.surface
+                                    else M3MaterialTheme.colorScheme.surfaceVariant
+                                ).value,
                                 elevation = 0.dp,
                             ) {
                                 when (hostOs) {

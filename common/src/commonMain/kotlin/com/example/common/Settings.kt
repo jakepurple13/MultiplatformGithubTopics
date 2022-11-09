@@ -56,13 +56,10 @@ fun SettingsScreen(
                     },
                     onClick = {},
                     selected = true,
-                    modifier = Modifier.padding(horizontal = 2.dp)
+                    modifier = Modifier.padding(horizontal = 4.dp)
                 )
 
-                Text(
-                    "Select Theme",
-                    modifier = Modifier.padding(horizontal = 2.dp)
-                )
+                SmallTopAppBar(title = { Text("Select Theme", style = MaterialTheme.typography.bodyLarge) })
 
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.s),
