@@ -69,7 +69,7 @@ fun GithubTopicUI(vm: BaseTopicVM) {
     val showButton by remember { derivedStateOf { state.firstVisibleItemIndex > 0 } }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
-    ModalNavigationDrawer(
+    DismissibleNavigationDrawer(
         drawerContent = { TopicDrawer(vm) },
         drawerState = drawerState
     ) {
@@ -78,7 +78,7 @@ fun GithubTopicUI(vm: BaseTopicVM) {
                 SmallTopAppBar(
                     navigationIcon = {
                         IconsButton(
-                            onClick = { scope.launch { drawerState.open() } },
+                            onClick = { scope.launch { if (drawerState.isOpen) drawerState.close() else drawerState.open() } },
                             icon = Icons.Default.Menu
                         )
                     },
