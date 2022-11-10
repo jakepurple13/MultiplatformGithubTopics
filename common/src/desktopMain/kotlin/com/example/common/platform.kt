@@ -49,9 +49,11 @@ actual fun TopicItemModification(item: GitHubTopic, content: @Composable () -> U
 
 @Composable
 actual fun LibraryContainer(modifier: Modifier) {
+    val uriHandler = LocalUriHandler.current
     LibrariesContainer(
         useResource("aboutlibraries.json") { it.bufferedReader().readText() },
         modifier = modifier,
+        onLibraryClick = { it.website?.let(uriHandler::openUri) },
         colors = LibraryDefaults.libraryColors(
             backgroundColor = MaterialTheme.colorScheme.background,
             contentColor = MaterialTheme.colorScheme.onBackground,

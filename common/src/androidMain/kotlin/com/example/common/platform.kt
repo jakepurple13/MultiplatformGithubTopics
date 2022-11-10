@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
@@ -64,8 +65,10 @@ actual fun TopicItemModification(item: GitHubTopic, content: @Composable () -> U
 
 @Composable
 actual fun LibraryContainer(modifier: Modifier) {
+    val uriHandler = LocalUriHandler.current
     LibrariesContainer(
         modifier = modifier,
+        onLibraryClick = { it.website?.let(uriHandler::openUri) },
         colors = LibraryDefaults.libraryColors(
             backgroundColor = MaterialTheme.colorScheme.background,
             contentColor = MaterialTheme.colorScheme.onBackground,
