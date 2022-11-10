@@ -89,6 +89,7 @@ kotlin {
         val desktopMain by getting {
             dependencies {
                 api(compose.preview)
+                api(compose.desktop.components.splitPane)
                 api("org.jetbrains.kotlinx:kotlinx-html-jvm:0.8.0")
             }
         }

@@ -2,16 +2,17 @@ package com.example.common
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.useResource
 import androidx.compose.ui.unit.dp
@@ -21,6 +22,10 @@ import com.mikepenz.markdown.Markdown
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.splitpane.ExperimentalSplitPaneApi
+import org.jetbrains.compose.splitpane.HorizontalSplitPane
+import org.jetbrains.compose.splitpane.rememberSplitPaneState
+import java.awt.Cursor
 
 
 actual fun getPlatformName(): String {
@@ -45,6 +50,37 @@ actual fun TopicItemModification(item: GitHubTopic, content: @Composable () -> U
         },
         content = content
     )
+}
+
+@OptIn(ExperimentalSplitPaneApi::class)
+@Composable
+actual fun TopicDrawerLocation(vm: BaseTopicVM) {
+    val splitter = rememberSplitPaneState()
+
+    HorizontalSplitPane(splitPaneState = splitter) {
+        first(250.dp) { TopicDrawer(vm) }
+        second(550.dp) { GithubTopicUI(vm) }
+
+        splitter {
+            visiblePart {
+                Box(
+                    Modifier.width(2.dp)
+                        .fillMaxHeight()
+                        .background(MaterialTheme.colorScheme.onBackground)
+                )
+            }
+            handle {
+                Box(
+                    Modifier
+                        .markAsHandle()
+                        .pointerHoverIcon(PointerIcon(Cursor(Cursor.E_RESIZE_CURSOR)))
+                        .background(SolidColor(Color.Gray), alpha = 0.50f)
+                        .width(2.dp)
+                        .fillMaxHeight()
+                )
+            }
+        }
+    }
 }
 
 @Composable

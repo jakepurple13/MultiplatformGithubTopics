@@ -17,6 +17,9 @@ expect val useInfiniteLoader: Boolean
 expect fun TopicItemModification(item: GitHubTopic, content: @Composable () -> Unit)
 
 @Composable
+expect fun TopicDrawerLocation(vm: BaseTopicVM)
+
+@Composable
 expect fun BoxScope.ReposScrollBar(lazyListState: LazyListState)
 
 @Composable

@@ -19,14 +19,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -57,65 +55,54 @@ data class AppActions(
 
 @Composable
 fun App(vm: BaseTopicVM) {
-    GithubTopicUI(vm)
+    TopicDrawerLocation(vm)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GithubTopicUI(vm: BaseTopicVM) {
+fun GithubTopicUI(vm: BaseTopicVM, navigationIcon: @Composable () -> Unit = {}) {
     val appActions = LocalAppActions.current
     val scope = rememberCoroutineScope()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarScrollState())
     val state = rememberLazyListState()
     val showButton by remember { derivedStateOf { state.firstVisibleItemIndex > 0 } }
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
-    DismissibleNavigationDrawer(
-        drawerContent = { TopicDrawer(vm) },
-        drawerState = drawerState
-    ) {
-        Scaffold(
-            topBar = {
-                SmallTopAppBar(
-                    navigationIcon = {
+    Scaffold(
+        topBar = {
+            SmallTopAppBar(
+                navigationIcon = navigationIcon,
+                title = { Text(text = "Github Topics") },
+                actions = {
+                    Text("Page: ${vm.page}")
+                    if (refreshIcon) {
                         IconsButton(
-                            onClick = { scope.launch { if (drawerState.isOpen) drawerState.close() else drawerState.open() } },
-                            icon = Icons.Default.Menu
+                            onClick = { scope.launch { vm.refresh() } },
+                            icon = Icons.Default.Refresh
                         )
-                    },
-                    title = { Text(text = "Github Topics") },
-                    actions = {
-                        Text("Page: ${vm.page}")
-                        if (refreshIcon) {
-                            IconsButton(
-                                onClick = { scope.launch { vm.refresh() } },
-                                icon = Icons.Default.Refresh
-                            )
-                        }
+                    }
+                    IconsButton(
+                        onClick = appActions.onSettingsClick,
+                        icon = Icons.Default.Settings
+                    )
+                    AnimatedVisibility(visible = showButton) {
                         IconsButton(
-                            onClick = appActions.onSettingsClick,
-                            icon = Icons.Default.Settings
+                            onClick = { scope.launch { state.animateScrollToItem(0) } },
+                            icon = Icons.Default.ArrowUpward
                         )
-                        AnimatedVisibility(visible = showButton) {
-                            IconsButton(
-                                onClick = { scope.launch { state.animateScrollToItem(0) } },
-                                icon = Icons.Default.ArrowUpward
-                            )
-                        }
-                    },
-                    scrollBehavior = scrollBehavior
-                )
-            },
-            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
-        ) { padding ->
-            TopicContent(
-                modifier = Modifier,
-                padding = padding,
-                state = state,
-                vm = vm,
-                onCardClick = appActions.onCardClick
+                    }
+                },
+                scrollBehavior = scrollBehavior
             )
-        }
+        },
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+    ) { padding ->
+        TopicContent(
+            modifier = Modifier,
+            padding = padding,
+            state = state,
+            vm = vm,
+            onCardClick = appActions.onCardClick
+        )
     }
 }
 
@@ -212,7 +199,8 @@ fun TopicItem(
     onTopicClick: (String) -> Unit
 ) {
     OutlinedCard(
-        onClick = { onCardClick(item) }
+        onClick = { onCardClick(item) },
+        modifier = Modifier.padding(horizontal = 4.dp)
     ) {
         Column(modifier = Modifier.padding(4.dp)) {
             ListItem(
@@ -352,7 +340,7 @@ fun TopicDrawer(vm: BaseTopicVM) {
         ) {
             items(vm.topicList) {
                 NavigationDrawerItem(
-                    modifier = Modifier.padding(horizontal = 2.dp),
+                    modifier = Modifier.padding(horizontal = 4.dp),
                     label = { Text(it) },
                     selected = it in vm.currentTopics,
                     onClick = { vm.setTopic(it) },

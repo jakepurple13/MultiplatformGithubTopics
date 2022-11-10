@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.LocalContentAlpha
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -61,6 +63,28 @@ actual val useInfiniteLoader = true
 @Composable
 actual fun TopicItemModification(item: GitHubTopic, content: @Composable () -> Unit) {
     content()
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+actual fun TopicDrawerLocation(vm: BaseTopicVM) {
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    DismissibleNavigationDrawer(
+        drawerContent = { TopicDrawer(vm) },
+        drawerState = drawerState
+    ) {
+        GithubTopicUI(
+            vm = vm,
+            navigationIcon = {
+                IconsButton(
+                    onClick = { scope.launch { if (drawerState.isOpen) drawerState.close() else drawerState.open() } },
+                    icon = Icons.Default.Menu
+                )
+            }
+        )
+    }
 }
 
 @Composable
