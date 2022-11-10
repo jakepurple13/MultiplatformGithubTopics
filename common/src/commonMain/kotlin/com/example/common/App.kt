@@ -49,9 +49,10 @@ import kotlinx.coroutines.launch
 
 @Immutable
 data class AppActions(
-    val onCardClick: (GitHubTopic) -> Unit,
-    val onShareClick: (GitHubTopic) -> Unit,
-    val onSettingsClick: () -> Unit
+    val onCardClick: (GitHubTopic) -> Unit = {},
+    val onShareClick: (GitHubTopic) -> Unit = {},
+    val onSettingsClick: () -> Unit = {},
+    val showLibrariesUsed: () -> Unit = {}
 )
 
 @Composable
@@ -456,4 +457,12 @@ fun GithubRepo(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LibrariesUsed() {
+    Scaffold(
+        topBar = { SmallTopAppBar(title = { Text("Libraries Used") }) }
+    ) { LibraryContainer(modifier = Modifier.padding(it).fillMaxSize()) }
 }

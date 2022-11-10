@@ -49,6 +49,7 @@ fun mains() {
         val themeColors by currentThemes.collectAsState(ThemeColors.Default)
         val isDarkMode by isDarkModes.collectAsState(true)
         val snackbarHostState = remember { SnackbarHostState() }
+        var showLibrariesUsed by remember { mutableStateOf(false) }
 
         val shareAction: (GitHubTopic) -> Unit = remember {
             {
@@ -68,7 +69,8 @@ fun mains() {
                     shareAction(it)
                     scope.launch { snackbarHostState.showSnackbar("Copied") }
                 },
-                onSettingsClick = { showThemeSelector = true }
+                onSettingsClick = { showThemeSelector = true },
+                showLibrariesUsed = { showLibrariesUsed = true }
             )
         ) {
             val topicViewModel = remember { TopicViewModel(scope, s) }
@@ -129,6 +131,13 @@ fun mains() {
                     }
                 }
             }
+
+            WindowWithBar(
+                onCloseRequest = { showLibrariesUsed = false },
+                windowTitle = "Libraries Used",
+                visible = showLibrariesUsed
+            ) { LibrariesUsed() }
+
         }
     }
 }
@@ -139,7 +148,7 @@ private fun FrameWindowScope.MenuOptions(
     isDarkMode: Boolean,
     onModeChange: (Boolean) -> Unit,
     onShowColors: () -> Unit,
-    refresh: (() -> Unit)? = null
+    refresh: (() -> Unit)? = null,
 ) {
     MenuBar {
         Menu("Theme", mnemonic = 'T') {
@@ -166,6 +175,8 @@ private fun FrameWindowScope.MenuOptions(
                         key = Key.R
                     )
                 )
+
+                Item("Libraries Used", onClick = LocalAppActions.current.showLibrariesUsed)
             }
         }
     }

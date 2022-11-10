@@ -7,6 +7,7 @@ plugins {
     id("kotlinx-serialization")
     id("io.realm.kotlin")
     kotlin("kapt")
+    id("com.mikepenz.aboutlibraries.plugin")
 }
 
 group = "com.example"
@@ -37,6 +38,8 @@ kotlin {
                 api("com.alialbaali.kamel:kamel-image:0.4.0")
                 api("com.mikepenz:multiplatform-markdown-renderer:0.6.1")
                 api("io.realm.kotlin:library-base:1.4.0")
+                api("com.mikepenz:aboutlibraries-core:10.5.1")
+                api("com.mikepenz:aboutlibraries-compose:10.5.1")
             }
         }
         val commonTest by getting {
@@ -104,4 +107,13 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+}
+
+
+configure<com.mikepenz.aboutlibraries.plugin.AboutLibrariesExtension> {
+    registerAndroidTasks = false
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class.java) {
+    dependsOn("exportLibraryDefinitions")
 }

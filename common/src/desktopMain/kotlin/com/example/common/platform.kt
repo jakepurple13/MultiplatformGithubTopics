@@ -13,7 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.useResource
 import androidx.compose.ui.unit.dp
+import com.mikepenz.aboutlibraries.ui.compose.LibrariesContainer
 import com.mikepenz.markdown.Markdown
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
@@ -41,6 +43,14 @@ actual fun TopicItemModification(item: GitHubTopic, content: @Composable () -> U
             )
         },
         content = content
+    )
+}
+
+@Composable
+actual fun LibraryContainer(modifier: Modifier) {
+    LibrariesContainer(
+        useResource("aboutlibraries.json") { it.bufferedReader().readText() },
+        modifier = modifier
     )
 }
 

@@ -3,11 +3,11 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose")
+    id("com.mikepenz.aboutlibraries.plugin")
 }
 
 group = "com.example"
 version = "1.0-SNAPSHOT"
-
 
 kotlin {
     jvm {
@@ -35,6 +35,15 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "demo1"
             packageVersion = "1.0.0"
+        }
+    }
+}
+
+tasks.register("BuildAboutLibraries") {
+    doFirst {
+        exec {
+            workingDir(projectDir)
+            commandLine("desktop:exportLibraryDefinitions -PaboutLibraries.exportPath=src/jvmMain/resources/")
         }
     }
 }

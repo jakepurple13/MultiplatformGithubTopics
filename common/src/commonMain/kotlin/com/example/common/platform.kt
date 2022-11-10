@@ -41,3 +41,6 @@ expect fun M3MaterialThemeSetup(themeColors: ThemeColors, isDarkMode: Boolean, c
 
 @Composable
 expect fun MarkdownText(text: String, modifier: Modifier = Modifier)
+
+@Composable
+expect fun LibraryContainer(modifier: Modifier = Modifier)

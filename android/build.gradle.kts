@@ -2,6 +2,7 @@ plugins {
     id("org.jetbrains.compose")
     id("com.android.application")
     kotlin("android")
+    id("com.mikepenz.aboutlibraries.plugin")
 }
 
 group "com.example"

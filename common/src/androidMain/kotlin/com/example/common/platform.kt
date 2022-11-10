@@ -34,6 +34,7 @@ import coil.decode.ImageDecoderDecoder
 import com.google.accompanist.flowlayout.FlowRow
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.mikepenz.aboutlibraries.ui.compose.LibrariesContainer
 import io.noties.markwon.Markwon
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
 import io.noties.markwon.ext.tables.TablePlugin
@@ -58,6 +59,11 @@ actual val useInfiniteLoader = true
 @Composable
 actual fun TopicItemModification(item: GitHubTopic, content: @Composable () -> Unit) {
     content()
+}
+
+@Composable
+actual fun LibraryContainer(modifier: Modifier) {
+    LibrariesContainer(modifier)
 }
 
 @Composable

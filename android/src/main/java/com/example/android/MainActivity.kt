@@ -70,7 +70,8 @@ class MainActivity : ComponentActivity() {
                         val shareIntent = Intent.createChooser(sendIntent, null)
                         startActivity(shareIntent)
                     },
-                    onSettingsClick = { navController.navigate(Screen.Settings.route) }
+                    onSettingsClick = { navController.navigate(Screen.Settings.route) },
+                    showLibrariesUsed = { navController.navigate(Screen.LibrariesUsed.route) },
                 )
             ) {
                 val view = LocalView.current
@@ -107,6 +108,8 @@ class MainActivity : ComponentActivity() {
                                 backAction = { navController.popBackStack() }
                             )
                         }
+
+                        composable(Screen.LibrariesUsed.route) { LibrariesUsed() }
 
                         bottomSheet(Screen.Settings.route) {
                             val context = LocalContext.current
@@ -185,4 +188,5 @@ sealed class Screen(val route: String) {
     object App : Screen("app")
     object RepoReadMe : Screen("repoReadMe")
     object Settings : Screen("settings")
+    object LibrariesUsed : Screen("librariesUsed")
 }

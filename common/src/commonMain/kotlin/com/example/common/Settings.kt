@@ -107,6 +107,15 @@ fun SettingsScreen(
                     }
                 }
                 Divider()
+
+                NavigationDrawerItem(
+                    label = { Text("View Libraries Used") },
+                    onClick = LocalAppActions.current.showLibrariesUsed,
+                    selected = true,
+                    modifier = Modifier.padding(horizontal = 4.dp)
+                )
+
+                Divider()
                 Column(
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                     horizontalAlignment = Alignment.CenterHorizontally
