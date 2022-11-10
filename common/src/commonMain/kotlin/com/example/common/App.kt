@@ -461,8 +461,13 @@ fun GithubRepo(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LibrariesUsed() {
+fun LibrariesUsed(backAction: () -> Unit) {
     Scaffold(
-        topBar = { SmallTopAppBar(title = { Text("Libraries Used") }) }
+        topBar = {
+            SmallTopAppBar(
+                title = { Text("Libraries Used") },
+                navigationIcon = { IconsButton(onClick = backAction, icon = Icons.Default.ArrowBack) },
+            )
+        }
     ) { LibraryContainer(modifier = Modifier.padding(it).fillMaxSize()) }
 }

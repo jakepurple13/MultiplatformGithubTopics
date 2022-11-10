@@ -109,7 +109,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        composable(Screen.LibrariesUsed.route) { LibrariesUsed() }
+                        composable(Screen.LibrariesUsed.route) { LibrariesUsed { navController.popBackStack() } }
 
                         bottomSheet(Screen.Settings.route) {
                             val context = LocalContext.current

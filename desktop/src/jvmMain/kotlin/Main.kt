@@ -136,7 +136,7 @@ fun mains() {
                 onCloseRequest = { showLibrariesUsed = false },
                 windowTitle = "Libraries Used",
                 visible = showLibrariesUsed
-            ) { LibrariesUsed() }
+            ) { LibrariesUsed { showLibrariesUsed = false } }
 
         }
     }
