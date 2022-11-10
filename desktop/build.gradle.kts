@@ -43,7 +43,11 @@ tasks.register("BuildAboutLibraries") {
     doFirst {
         exec {
             workingDir(projectDir)
-            commandLine("desktop:exportLibraryDefinitions -PaboutLibraries.exportPath=src/jvmMain/resources/")
+            commandLine("./gradlew desktop:exportLibraryDefinitions -PaboutLibraries.exportPath=src/jvmMain/resources/")
         }
     }
 }
+
+/*tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class.java) {
+    dependsOn("BuildAboutLibraries")
+}*/
