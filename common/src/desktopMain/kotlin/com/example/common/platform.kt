@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.useResource
 import androidx.compose.ui.unit.dp
 import com.mikepenz.aboutlibraries.ui.compose.LibrariesContainer
+import com.mikepenz.aboutlibraries.ui.compose.LibraryDefaults
 import com.mikepenz.markdown.Markdown
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
@@ -50,7 +51,13 @@ actual fun TopicItemModification(item: GitHubTopic, content: @Composable () -> U
 actual fun LibraryContainer(modifier: Modifier) {
     LibrariesContainer(
         useResource("aboutlibraries.json") { it.bufferedReader().readText() },
-        modifier = modifier
+        modifier = modifier,
+        colors = LibraryDefaults.libraryColors(
+            backgroundColor = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.onBackground,
+            badgeBackgroundColor = MaterialTheme.colorScheme.primaryContainer,
+            badgeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        )
     )
 }
 

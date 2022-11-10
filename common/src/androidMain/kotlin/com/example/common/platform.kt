@@ -35,6 +35,7 @@ import com.google.accompanist.flowlayout.FlowRow
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.mikepenz.aboutlibraries.ui.compose.LibrariesContainer
+import com.mikepenz.aboutlibraries.ui.compose.LibraryDefaults
 import io.noties.markwon.Markwon
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
 import io.noties.markwon.ext.tables.TablePlugin
@@ -63,7 +64,15 @@ actual fun TopicItemModification(item: GitHubTopic, content: @Composable () -> U
 
 @Composable
 actual fun LibraryContainer(modifier: Modifier) {
-    LibrariesContainer(modifier)
+    LibrariesContainer(
+        modifier = modifier,
+        colors = LibraryDefaults.libraryColors(
+            backgroundColor = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.onBackground,
+            badgeBackgroundColor = MaterialTheme.colorScheme.primaryContainer,
+            badgeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        )
+    )
 }
 
 @Composable
