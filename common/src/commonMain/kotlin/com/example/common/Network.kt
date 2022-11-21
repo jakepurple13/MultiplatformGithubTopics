@@ -96,10 +96,14 @@ object Network {
     private val format = SimpleDateFormat.getDateTimeInstance()
 
     suspend fun getTopics(page: Int, vararg topics: String) = runCatching {
-        val url =
-            "https://api.github.com/search/repositories?q=" + topics.joinToString(separator = "+") { "topic:$it" } + "+sort:updated-desc&page=$page"
-
-        client.get(url).body<GithubTopics>().items.map {
+        client.get("https://api.github.com/search/repositories") {
+            url {
+                parameters.append("page", page.toString())
+                parameters.append("sort", "updated")
+                parameters.append("order", "desc")
+                parameters.append("q", topics.joinToString(separator = "+") { "topic:$it" })
+            }
+        }.body<GithubTopics>().items.map {
             val date = Instant.parse(it.pushedAt).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
             it.copy(pushedAt = "Updated " + timePrinter.format(Date(date)) + " on\n" + format.format(date))
         }
