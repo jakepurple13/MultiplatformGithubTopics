@@ -44,7 +44,6 @@ import io.kamel.image.lazyPainterResource
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-
 @Immutable
 data class AppActions(
     val onCardClick: (GitHubTopic) -> Unit = {},

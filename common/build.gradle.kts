@@ -40,7 +40,6 @@ kotlin {
                 api("io.realm.kotlin:library-base:1.4.0")
                 api("com.mikepenz:aboutlibraries-core:10.5.1")
                 api("com.mikepenz:aboutlibraries-compose:10.5.1")
-                api("app.cash.paging:paging-common:3.1.1-0.1.1")
             }
         }
         val commonTest by getting {
@@ -61,9 +60,6 @@ kotlin {
                 api("androidx.navigation:navigation-compose:2.5.3")
                 api("com.google.accompanist:accompanist-swiperefresh:0.27.0")
                 api("com.fragula2:fragula-compose:2.4")
-
-                api("androidx.paging:paging-runtime:3.1.1")
-                api("androidx.paging:paging-compose:1.0.0-alpha17")
 
                 val markwon_version = "4.6.2"
                 api("io.noties.markwon:core:$markwon_version")
