@@ -195,6 +195,7 @@ fun TopicItem(
     onCardClick: (GitHubTopic) -> Unit,
     onTopicClick: (String) -> Unit
 ) {
+    val actions = LocalAppActions.current
     OutlinedCard(
         onClick = { onCardClick(item) },
         modifier = Modifier.padding(horizontal = 4.dp)
@@ -220,7 +221,9 @@ fun TopicItem(
                     }
                 },
                 trailingContent = {
-                    Column {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        IconsButton(onClick = { actions.onShareClick(item) }, icon = Icons.Default.Share)
+
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.Star, contentDescription = null)
                             Text(item.stars.toString())

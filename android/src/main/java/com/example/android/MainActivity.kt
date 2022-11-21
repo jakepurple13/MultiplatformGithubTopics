@@ -25,11 +25,11 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.common.*
+import com.fragula2.compose.FragulaNavHost
+import com.fragula2.compose.swipeable
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 import com.google.accompanist.navigation.material.bottomSheet
@@ -88,14 +88,14 @@ class MainActivity : ComponentActivity() {
                     sheetBackgroundColor = MaterialTheme.colorScheme.background,
                     sheetShape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
                 ) {
-                    NavHost(
+                    FragulaNavHost(
                         navController = navController,
                         startDestination = Screen.App.route
                     ) {
 
-                        composable(Screen.App.route) { App(vm = viewModel { TopicViewModel(vm.settingInformation) }) }
+                        swipeable(Screen.App.route) { App(vm = viewModel { TopicViewModel(vm.settingInformation) }) }
 
-                        composable(
+                        swipeable(
                             Screen.RepoReadMe.route + "/{topic}",
                             arguments = listOf(navArgument("topic") { type = NavType.StringType })
                         ) {
@@ -109,7 +109,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        composable(Screen.LibrariesUsed.route) { LibrariesUsed { navController.popBackStack() } }
+                        swipeable(Screen.LibrariesUsed.route) { LibrariesUsed { navController.popBackStack() } }
 
                         bottomSheet(Screen.Settings.route) {
                             val context = LocalContext.current
