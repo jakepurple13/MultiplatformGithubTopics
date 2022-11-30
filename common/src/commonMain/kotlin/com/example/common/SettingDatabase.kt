@@ -4,6 +4,7 @@ import io.realm.kotlin.MutableRealm
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
 import io.realm.kotlin.ext.realmListOf
+import io.realm.kotlin.migration.AutomaticSchemaMigration
 import io.realm.kotlin.types.RealmList
 import io.realm.kotlin.types.RealmObject
 import kotlinx.coroutines.flow.filterNotNull
@@ -13,16 +14,33 @@ class SettingInformation : RealmObject {
     var topicList: RealmList<String> = realmListOf()
     var theme: Int = ThemeColors.Default.ordinal
     var isDarkMode: Boolean = true
+    var singleTopic: Boolean = true
 }
 
 class Database {
-    val realm by lazy { Realm.open(RealmConfiguration.create(setOf(SettingInformation::class))) }
+    val realm by lazy {
+        Realm.open(
+            RealmConfiguration.Builder(setOf(SettingInformation::class))
+                .schemaVersion(1)
+                .migration(AutomaticSchemaMigration { })
+                .build()
+        )
+    }
 
     val settingsInfo
         get() = realm.query<SettingInformation>(SettingInformation::class)
             .first()
             .asFlow()
             .filterNotNull()
+
+    suspend fun setCurrentTopic(topic: String) {
+        if (topic.isNotEmpty()) {
+            updateInfo {
+                it?.currentTopics?.clear()
+                it?.currentTopics?.add(topic)
+            }
+        }
+    }
 
     suspend fun addCurrentTopic(topic: String) {
         if (topic.isNotEmpty()) {
@@ -56,5 +74,9 @@ class Database {
         realm.query<SettingInformation>(SettingInformation::class).first().find()?.also { info ->
             realm.write { block(findLatest(info)) }
         }
+    }
+
+    suspend fun singleTopicToggle(toggle: Boolean) {
+        updateInfo { it?.singleTopic = toggle }
     }
 }

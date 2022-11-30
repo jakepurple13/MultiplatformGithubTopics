@@ -175,14 +175,24 @@ class TopicViewModel(private val viewModelScope: CoroutineScope, s: Flow<Setting
                 if (it.isNotEmpty()) refresh()
             }
             .launchIn(viewModelScope)
+
+        s
+            .map { it.singleTopic }
+            .distinctUntilChanged()
+            .onEach { singleTopic = it }
+            .launchIn(viewModelScope)
     }
 
     override fun setTopic(topic: String) {
         viewModelScope.launch {
-            if (topic !in currentTopics) {
-                db.addCurrentTopic(topic)
+            if (singleTopic) {
+                db.setCurrentTopic(topic)
             } else {
-                db.removeCurrentTopic(topic)
+                if (topic !in currentTopics) {
+                    db.addCurrentTopic(topic)
+                } else {
+                    db.removeCurrentTopic(topic)
+                }
             }
         }
     }
@@ -199,6 +209,10 @@ class TopicViewModel(private val viewModelScope: CoroutineScope, s: Flow<Setting
         viewModelScope.launch {
             db.removeTopic(topic)
         }
+    }
+
+    override suspend fun toggleSingleTopic() {
+        db.singleTopicToggle(!singleTopic)
     }
 }
 

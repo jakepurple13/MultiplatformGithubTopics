@@ -3,6 +3,7 @@ package com.example.common
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
@@ -285,7 +287,7 @@ fun TopicItem(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun TopicDrawer(vm: BaseTopicVM) {
     var topicText by remember { mutableStateOf("") }
@@ -337,6 +339,22 @@ fun TopicDrawer(vm: BaseTopicVM) {
                 .fillMaxSize()
                 .padding(vertical = 2.dp),
         ) {
+            stickyHeader {
+                val scope = rememberCoroutineScope()
+                ElevatedCard(
+                    onClick = { scope.launch { vm.toggleSingleTopic() } }
+                ) {
+                    ListItem(
+                        headlineText = { Text("Use ${if (vm.singleTopic) "Single" else "Multiple"} Topic(s)") },
+                        trailingContent = {
+                            Switch(
+                                checked = vm.singleTopic,
+                                onCheckedChange = { scope.launch { vm.toggleSingleTopic() } }
+                            )
+                        }
+                    )
+                }
+            }
             items(vm.topicList) {
                 NavigationDrawerItem(
                     modifier = Modifier.padding(horizontal = 4.dp),

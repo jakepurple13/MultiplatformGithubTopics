@@ -14,6 +14,7 @@ class BaseTopicViewModel : BaseTopicVM {
 
     override val items = mutableStateListOf<GitHubTopic>()
     override var isLoading by mutableStateOf(true)
+    override var singleTopic by mutableStateOf(true)
     override val currentTopics = mutableStateListOf<String>()
     override val topicList = mutableStateListOf<String>()
     override var page by mutableStateOf(1)
@@ -50,6 +51,7 @@ interface BaseTopicVM {
     fun removeTopic(topic: String) = Unit
     suspend fun refresh() = Unit
     suspend fun newPage() = Unit
+    suspend fun toggleSingleTopic() = Unit
     val db: Database
 
     val items: SnapshotStateList<GitHubTopic>
@@ -57,6 +59,7 @@ interface BaseTopicVM {
     val currentTopics: SnapshotStateList<String>
     val topicList: SnapshotStateList<String>
     val page: Int
+    var singleTopic: Boolean
 }
 
 class BaseRepoViewModel(
