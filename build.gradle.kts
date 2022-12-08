@@ -1,3 +1,7 @@
+import com.github.ajalt.mordant.rendering.TextColors
+import com.programmersbox.ProjectInfoExtension
+import com.programmersbox.ProjectInfoPlugin
+
 group "com.example"
 version "1.0-SNAPSHOT"
 
@@ -10,9 +14,29 @@ allprojects {
     }
 }
 
+subprojects {
+    afterEvaluate {
+        apply(plugin = "io.github.jakepurple13.ProjectInfo")
+        if (plugins.findPlugin(ProjectInfoPlugin::class) != null) {
+            setupProjectInfo()
+        }
+    }
+}
+
+fun Project.setupProjectInfo(): Unit = (this as ExtensionAware).extensions.configure(
+    "projectInfo",
+    Action<ProjectInfoExtension> {
+        fileLineCountValidation {
+            lineCountToFlag = 100
+            color = TextColors.red
+        }
+    }
+)
+
 buildscript {
     dependencies {
         classpath("io.realm.kotlin:gradle-plugin:1.4.0")
+        classpath("io.github.jakepurple13.ProjectInfo:projectinfoplugin:1.0.9")
     }
 }
 
