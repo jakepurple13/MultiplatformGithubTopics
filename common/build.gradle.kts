@@ -29,17 +29,18 @@ kotlin {
                 api(compose.material3)
                 api(compose.material)
                 api(compose.materialIconsExtended)
-                api("io.ktor:ktor-client-core:2.1.3")
-                api("io.ktor:ktor-client-cio:2.1.3")
-                api("io.ktor:ktor-client-content-negotiation:2.1.3")
-                api("io.ktor:ktor-serialization-kotlinx-json:2.1.3")
-                api("io.ktor:ktor-client-logging:2.1.3")
+                val ktorVersion = extra["ktor.version"] as String
+                api("io.ktor:ktor-client-core:$ktorVersion")
+                api("io.ktor:ktor-client-cio:$ktorVersion")
+                api("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+                api("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+                api("io.ktor:ktor-client-logging:$ktorVersion")
                 api("org.ocpsoft.prettytime:prettytime:5.0.2.Final")
                 api("com.alialbaali.kamel:kamel-image:0.4.0")
                 api("com.mikepenz:multiplatform-markdown-renderer:0.6.1")
                 api("io.realm.kotlin:library-base:1.4.0")
-                api("com.mikepenz:aboutlibraries-core:10.5.1")
-                api("com.mikepenz:aboutlibraries-compose:10.5.1")
+                api("com.mikepenz:aboutlibraries-core:10.5.2")
+                api("com.mikepenz:aboutlibraries-compose:10.5.2")
             }
         }
         val commonTest by getting {
