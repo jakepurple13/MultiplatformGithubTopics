@@ -1,4 +1,3 @@
-import com.github.ajalt.mordant.rendering.TextColors
 import com.programmersbox.ProjectInfoExtension
 import com.programmersbox.ProjectInfoPlugin
 
@@ -11,6 +10,7 @@ allprojects {
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
         maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots") }
+        maven(url = "https://jitpack.io")
     }
 }
 
@@ -28,7 +28,7 @@ fun Project.setupProjectInfo(): Unit = (this as ExtensionAware).extensions.confi
     Action<ProjectInfoExtension> {
         fileLineCountValidation {
             lineCountToFlag = 100
-            color = TextColors.red
+            red()
         }
     }
 )

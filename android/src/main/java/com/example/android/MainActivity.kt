@@ -9,7 +9,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -43,7 +42,7 @@ import kotlinx.serialization.json.Json
 
 @PrismBundle(includeAll = true)
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterialApi::class)
+    @OptIn(ExperimentalMaterialNavigationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val db = Database()
@@ -159,9 +158,8 @@ class AppViewModel(db: Database) : ViewModel() {
 
     init {
         viewModelScope.launch {
-            val f = db.realm.query<SettingInformation>(SettingInformation::class).first().find()
+            val f = db.realm.query(SettingInformation::class).first().find()
             val info = f ?: db.realm.write { copyToRealm(SettingInformation()) }
-
             val s = info.asFlow().mapNotNull { it.obj }
 
             s
