@@ -9,8 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyShortcut
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.MenuBar
@@ -58,15 +57,6 @@ fun mains() {
         val snackbarHostState = remember { SnackbarHostState() }
         var showLibrariesUsed by remember { mutableStateOf(false) }
 
-        val shareAction: (GitHubTopic) -> Unit = remember {
-            {
-                val stringSelection = StringSelection(it.htmlUrl)
-                val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
-                clipboard.setContents(stringSelection, null)
-                Toolkit.getDefaultToolkit().beep()
-            }
-        }
-
         Theme(
             themeColors = themeColors,
             isDarkMode = isDarkMode,
@@ -74,7 +64,10 @@ fun mains() {
                 onCardClick = vm::newTab,
                 onNewTabOpen = vm::newTabAndOpen,
                 onShareClick = {
-                    shareAction(it)
+                    val stringSelection = StringSelection(it.htmlUrl)
+                    val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
+                    clipboard.setContents(stringSelection, null)
+                    Toolkit.getDefaultToolkit().beep()
                     scope.launch { snackbarHostState.showSnackbar("Copied") }
                 },
                 onSettingsClick = { showThemeSelector = true },
@@ -91,7 +84,23 @@ fun mains() {
                         isDarkMode = isDarkMode,
                         onModeChange = { scope.launch { db.changeMode(it) } },
                         onShowColors = { showThemeSelector = true },
-                        refresh = { scope.launch { topicViewModel.refresh() } }
+                        refresh = { scope.launch { topicViewModel.refresh() } },
+                        previousTab = {
+                            if (vm.selected == 0) {
+                                vm.selected = vm.repoTabs.size
+                            } else {
+                                vm.selected--
+                            }
+                        },
+                        nextTab = {
+                            if (vm.selected == vm.repoTabs.size) {
+                                vm.selected = 0
+                            } else {
+                                vm.selected++
+                            }
+                        },
+                        closeTabEnabled = vm.selected == 0,
+                        closeTab = { vm.closeTab(vm.repoTabs[vm.selected - 1]) }
                     )
                 }
             ) {
@@ -126,7 +135,6 @@ fun mains() {
                 ) { p ->
                     Box(modifier = Modifier.padding(p)) {
                         when (vm.selected) {
-                            //use a LocalTopicScroll to give it the thing
                             0 -> App(topicViewModel)
                             else -> {
                                 key(vm.selected) {
@@ -173,6 +181,10 @@ private fun FrameWindowScope.MenuOptions(
     onModeChange: (Boolean) -> Unit,
     onShowColors: () -> Unit,
     refresh: (() -> Unit)? = null,
+    previousTab: () -> Unit = {},
+    nextTab: () -> Unit = {},
+    closeTabEnabled: Boolean = false,
+    closeTab: () -> Unit = {}
 ) {
     MenuBar {
         Menu("Theme", mnemonic = 'T') {
@@ -202,6 +214,35 @@ private fun FrameWindowScope.MenuOptions(
 
                 Item("Libraries Used", onClick = LocalAppActions.current.showLibrariesUsed)
             }
+        }
+        Menu("Navigation") {
+            Item(
+                "Previous Tab",
+                onClick = previousTab,
+                shortcut = KeyShortcut(
+                    ctrl = true,
+                    shift = true,
+                    key = Key.Tab
+                )
+            )
+            Item(
+                "Next Tab",
+                onClick = nextTab,
+                shortcut = KeyShortcut(
+                    ctrl = true,
+                    key = Key.Tab
+                )
+            )
+            Item(
+                "Close Tab",
+                enabled = closeTabEnabled,
+                onClick = closeTab,
+                shortcut = KeyShortcut(
+                    meta = hostOs == OS.MacOS,
+                    ctrl = hostOs == OS.Windows || hostOs == OS.Linux,
+                    key = Key.W
+                )
+            )
         }
     }
 }
