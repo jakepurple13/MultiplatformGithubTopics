@@ -30,13 +30,17 @@ fun Project.setupProjectInfo(): Unit = (this as ExtensionAware).extensions.confi
             lineCountToFlag = 100
             red()
         }
+        showTopCount = 3
+        filter {
+            exclude("**/Pager.kt")
+        }
     }
 )
 
 buildscript {
     dependencies {
         classpath("io.realm.kotlin:gradle-plugin:1.4.0")
-        classpath("io.github.jakepurple13.ProjectInfo:projectinfoplugin:1.0.9")
+        classpath("io.github.jakepurple13.ProjectInfo:projectinfoplugin:1.1.1")
     }
 }
 

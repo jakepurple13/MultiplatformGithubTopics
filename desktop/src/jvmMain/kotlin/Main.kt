@@ -1,10 +1,17 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 
-import androidx.compose.material3.SnackbarHostState
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Topic
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.MenuBar
 import androidx.compose.ui.window.application
@@ -23,11 +30,11 @@ import java.awt.Toolkit
 import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.StringSelection
 
-
+@OptIn(ExperimentalMaterial3Api::class)
 fun mains() {
     val db = Database()
     val info = runBlocking {
-        val f = db.realm.query<SettingInformation>(SettingInformation::class).first().find()
+        val f = db.realm.query(SettingInformation::class).first().find()
         f ?: db.realm.write { copyToRealm(SettingInformation()) }
     }
 
@@ -64,7 +71,8 @@ fun mains() {
             themeColors = themeColors,
             isDarkMode = isDarkMode,
             appActions = AppActions(
-                onCardClick = vm::newWindow,
+                onCardClick = vm::newTab,
+                onNewTabOpen = vm::newTabAndOpen,
                 onShareClick = {
                     shareAction(it)
                     scope.launch { snackbarHostState.showSnackbar("Copied") }
@@ -86,7 +94,54 @@ fun mains() {
                         refresh = { scope.launch { topicViewModel.refresh() } }
                     )
                 }
-            ) { App(topicViewModel) }
+            ) {
+                Scaffold(
+                    topBar = {
+                        ScrollableTabRow(
+                            selectedTabIndex = vm.selected,
+                            edgePadding = 0.dp
+                        ) {
+                            LeadingIconTab(
+                                selected = true,
+                                text = { Text("Topics") },
+                                onClick = { vm.selected = 0 },
+                                icon = { Icon(Icons.Default.Topic, null) }
+                            )
+
+                            vm.repoTabs.forEachIndexed { index, topic ->
+                                LeadingIconTab(
+                                    selected = true,
+                                    text = { Text(topic.name) },
+                                    onClick = { vm.selected = index + 1 },
+                                    icon = {
+                                        IconsButton(
+                                            onClick = { vm.closeTab(topic) },
+                                            icon = Icons.Default.Close
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                    }
+                ) { p ->
+                    Box(modifier = Modifier.padding(p)) {
+                        when (vm.selected) {
+                            //use a LocalTopicScroll to give it the thing
+                            0 -> App(topicViewModel)
+                            else -> {
+                                key(vm.selected) {
+                                    vm.repoTabs.getOrNull(vm.selected - 1)?.let { topic ->
+                                        GithubRepo(
+                                            vm = remember { RepoViewModel(Json.encodeToString(topic)) },
+                                            backAction = { vm.closeTab(topic) }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             WindowWithBar(
                 windowTitle = "Settings",
@@ -99,37 +154,6 @@ fun mains() {
                     isDarkMode = isDarkMode,
                     onModeChange = { scope.launch { db.changeMode(it) } }
                 )
-            }
-
-            vm.repoWindows.forEach { topic ->
-                val topicSnackbarHostState = remember { SnackbarHostState() }
-
-                CompositionLocalProvider(
-                    LocalAppActions provides LocalAppActions.current.copy(
-                        onShareClick = {
-                            shareAction(it)
-                            scope.launch { topicSnackbarHostState.showSnackbar("Copied") }
-                        }
-                    )
-                ) {
-                    WindowWithBar(
-                        windowTitle = topic.name,
-                        onCloseRequest = { vm.closeWindow(topic) },
-                        snackbarHostState = topicSnackbarHostState,
-                        frameWindowScope = {
-                            MenuOptions(
-                                isDarkMode = isDarkMode,
-                                onModeChange = { scope.launch { db.changeMode(it) } },
-                                onShowColors = { showThemeSelector = true }
-                            )
-                        }
-                    ) {
-                        GithubRepo(
-                            vm = remember { RepoViewModel(Json.encodeToString(topic)) },
-                            backAction = { vm.closeWindow(topic) }
-                        )
-                    }
-                }
             }
 
             WindowWithBar(
@@ -183,15 +207,27 @@ private fun FrameWindowScope.MenuOptions(
 }
 
 class AppViewModel {
+    val repoTabs = mutableStateListOf<GitHubTopic>()
+    var selected by mutableStateOf(0)
 
-    val repoWindows = mutableStateListOf<GitHubTopic>()
-
-    fun newWindow(topic: GitHubTopic) {
-        repoWindows.add(topic)
+    fun newTab(topic: GitHubTopic) {
+        if (topic !in repoTabs)
+            repoTabs.add(topic)
     }
 
-    fun closeWindow(topic: GitHubTopic) {
-        repoWindows.remove(topic)
+    fun newTabAndOpen(topic: GitHubTopic) {
+        repoTabs.add(topic)
+        selected = repoTabs.indexOf(topic) + 1
     }
 
+    fun closeTab(topic: GitHubTopic) {
+        val index = repoTabs.indexOf(topic) + 1
+        when {
+            index < selected -> selected--
+            index == selected -> selected--
+            index > selected -> Unit
+            else -> selected = 0
+        }
+        repoTabs.remove(topic)
+    }
 }

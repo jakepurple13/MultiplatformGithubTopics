@@ -1,6 +1,8 @@
 package com.example.common
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
@@ -25,7 +27,8 @@ fun Theme(
         MaterialTheme(colors = themeColors.getTheme(isDarkMode).animate()) {
             CompositionLocalProvider(
                 LocalAppActions provides appActions,
-                LocalThemeSpacing provides remember { Spacing() }
+                LocalThemeSpacing provides remember { Spacing() },
+                LocalMainScrollState provides rememberLazyListState()
             ) { content() }
         }
     }
@@ -44,6 +47,8 @@ val M3MaterialTheme.spacing: Spacing
     get() = LocalThemeSpacing.current
 
 val LocalAppActions = staticCompositionLocalOf<AppActions> { error("No Actions") }
+
+val LocalMainScrollState = staticCompositionLocalOf<LazyListState> { error("No Actions") }
 
 @Composable
 private fun Colors.animate() = copy(

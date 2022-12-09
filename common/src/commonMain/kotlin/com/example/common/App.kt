@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -49,6 +48,7 @@ import kotlinx.coroutines.launch
 @Immutable
 data class AppActions(
     val onCardClick: (GitHubTopic) -> Unit = {},
+    val onNewTabOpen: (GitHubTopic) -> Unit = {},
     val onShareClick: (GitHubTopic) -> Unit = {},
     val onSettingsClick: () -> Unit = {},
     val showLibrariesUsed: () -> Unit = {}
@@ -65,7 +65,7 @@ fun GithubTopicUI(vm: BaseTopicVM, navigationIcon: @Composable () -> Unit = {}) 
     val appActions = LocalAppActions.current
     val scope = rememberCoroutineScope()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarScrollState())
-    val state = rememberLazyListState()
+    val state = LocalMainScrollState.current
     val showButton by remember { derivedStateOf { state.firstVisibleItemIndex > 0 } }
 
     Scaffold(
