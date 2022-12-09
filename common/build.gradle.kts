@@ -56,20 +56,20 @@ kotlin {
                 api("androidx.lifecycle:lifecycle-runtime-compose:2.6.0-alpha03")
                 api("io.coil-kt:coil-compose:2.2.2")
                 api("io.coil-kt:coil-gif:2.2.2")
-                api("com.google.accompanist:accompanist-flowlayout:0.27.0")
-                api("com.google.accompanist:accompanist-navigation-material:0.27.0")
+                api("com.google.accompanist:accompanist-flowlayout:0.28.0")
+                api("com.google.accompanist:accompanist-navigation-material:0.28.0")
                 api("androidx.navigation:navigation-compose:2.5.3")
                 api("com.google.accompanist:accompanist-swiperefresh:0.27.0")
                 api("com.fragula2:fragula-compose:2.4")
 
-                val markwon_version = "4.6.2"
-                api("io.noties.markwon:core:$markwon_version")
-                api("io.noties.markwon:ext-strikethrough:$markwon_version")
-                api("io.noties.markwon:ext-tables:$markwon_version")
-                api("io.noties.markwon:html:$markwon_version")
-                api("io.noties.markwon:linkify:$markwon_version")
-                api("io.noties.markwon:image-coil:$markwon_version")
-                api("io.noties.markwon:syntax-highlight:$markwon_version") {
+                val markwonVersion = "4.6.2"
+                api("io.noties.markwon:core:$markwonVersion")
+                api("io.noties.markwon:ext-strikethrough:$markwonVersion")
+                api("io.noties.markwon:ext-tables:$markwonVersion")
+                api("io.noties.markwon:html:$markwonVersion")
+                api("io.noties.markwon:linkify:$markwonVersion")
+                api("io.noties.markwon:image-coil:$markwonVersion")
+                api("io.noties.markwon:syntax-highlight:$markwonVersion") {
                     exclude("org.jetbrains", "annotations-java5")
                 }
                 configurations["kapt"].dependencies.add(
@@ -85,7 +85,7 @@ kotlin {
         }
         val androidTest by getting {
             dependencies {
-                implementation("junit:junit:4.13")
+                implementation("junit:junit:4.13.2")
             }
         }
         val desktopMain by getting {
