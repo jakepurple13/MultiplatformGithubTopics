@@ -6,7 +6,7 @@ env:
 on:
   push:
     branches:
-      - master
+      - main
     tags:
       - '*'
     paths-ignore:
@@ -17,7 +17,7 @@ on:
 
   pull_request:
     branches:
-      - master
+      - main
 
   workflow_dispatch:
   repository_dispatch:
