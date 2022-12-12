@@ -36,16 +36,20 @@ compose.desktop {
             packageName = "GitHub Topics"
             packageVersion = "1.0.0"
             appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))
+            fun iconFile(extension: String) = project.file("src/jvmMain/resources/logo.$extension")
             macOS {
-                iconFile.set(project.file("src/jvmMain/resources/logo.icns"))
+                val icon = iconFile("icns")
+                iconFile.set(icon)
             }
             windows {
-                iconFile.set(project.file("src/jvmMain/resources/logo.ico"))
+                val icon = iconFile("ico")
+                iconFile.set(icon)
                 dirChooser = true
                 console = true
             }
             linux {
-                iconFile.set(project.file("src/jvmMain/resources/logo.png"))
+                val icon = iconFile("png")
+                iconFile.set(icon)
             }
         }
     }

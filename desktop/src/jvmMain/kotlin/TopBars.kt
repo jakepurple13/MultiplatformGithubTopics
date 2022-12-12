@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import org.jetbrains.skiko.OS
@@ -44,7 +45,8 @@ fun ApplicationScope.WindowWithBar(
         undecorated = true,
         transparent = true,
         onCloseRequest = onCloseRequest,
-        visible = visible
+        visible = visible,
+        icon = painterResource("logo.png")
     ) {
         frameWindowScope()
         val hasFocus = LocalWindowInfo.current.isWindowFocused
