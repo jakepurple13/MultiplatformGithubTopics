@@ -32,7 +32,7 @@ compose.desktop {
         mainClass = "StartKt"
         nativeDistributions {
             includeAllModules = true
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Exe)
             packageName = "GitHub Topics"
             packageVersion = "1.0.0"
             appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))

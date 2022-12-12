@@ -74,10 +74,54 @@ jobs:
           name: distributable-${{ matrix.os }}
           if-no-files-found: ignore
           path: |
+            build/**/*.dmg
             build/**/*.deb
             build/**/*.msi
             build/**/*.exe
             build/compose/jars/*.jar
+
+  apk:
+    name: Generate APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: adopt
+          java-version: 11
+
+      - name: Get tag name
+        id: get_tag_name
+        run: |
+          set -x
+          echo "VERSION_TAG=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+      - name: Bump version
+        uses: chkfung/android-version-actions@v1.1
+        with:
+          gradlePath: app/build.gradle
+          versionCode: ${{github.run_number}}
+          versionName: ${{ env.VERSION_TAG }}
+
+      - name: Build Artifacts
+        id: buildApks
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: current
+          wrapper-cache-enabled: true
+          dependencies-cache-enabled: true
+          configuration-cache-enabled: true
+          arguments: app:bundleRelease
+
+      - name: Clean up build artifacts
+        run: |
+          cp android/build/outputs/bundle/android-bundle.aab github-topics-release.aab
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Signed GitHub Topics App
+          path: github-topics-release.aab
 
   release:
     name: Release new version.
