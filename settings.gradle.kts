@@ -16,6 +16,6 @@ pluginManagement {
     }
 }
 
-rootProject.name = "demo1"
+rootProject.name = "GithubTopics"
 
 include(":android", ":desktop", ":common")
