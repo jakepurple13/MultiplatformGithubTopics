@@ -32,7 +32,7 @@ fun Project.setupProjectInfo(): Unit = (this as ExtensionAware).extensions.confi
         }
         showTopCount = 3
         filter {
-            exclude("**/Pager.kt")
+            excludeFileTypes("png", "ico", "icns")
         }
     }
 )

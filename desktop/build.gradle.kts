@@ -33,8 +33,20 @@ compose.desktop {
         nativeDistributions {
             includeAllModules = true
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "demo1"
+            packageName = "demo1"//"GitHub Topics"
             packageVersion = "1.0.0"
+            /*appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))
+            macOS {
+                iconFile.set(project.file("logo.icns"))
+            }
+            windows {
+                iconFile.set(project.file("logo.ico"))
+                dirChooser = true
+                console = true
+            }
+            linux {
+                iconFile.set(project.file("logo.png"))
+            }*/
         }
     }
 }
