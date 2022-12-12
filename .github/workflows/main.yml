@@ -101,11 +101,11 @@ jobs:
           wrapper-cache-enabled: true
           dependencies-cache-enabled: true
           configuration-cache-enabled: true
-          arguments: app:bundleRelease
+          arguments: android:bundle
 
       - name: Clean up build artifacts
         run: |
-          cp android/build/outputs/bundle/android-bundle.aab github-topics-release.aab
+          cp android/build/outputs/bundle/release/android-release.aab github-topics-release.aab
       - uses: actions/upload-artifact@v3
         with:
           name: Signed GitHub Topics App
