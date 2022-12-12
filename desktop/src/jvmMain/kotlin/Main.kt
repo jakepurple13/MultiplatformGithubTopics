@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -10,6 +11,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.input.pointer.PointerButton
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.MenuBar
@@ -29,7 +33,7 @@ import java.awt.Toolkit
 import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.StringSelection
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 fun mains() {
     val db = Database()
     val info = runBlocking {
@@ -99,37 +103,44 @@ fun mains() {
                                 vm.selected++
                             }
                         },
-                        closeTabEnabled = vm.selected == 0,
+                        closeTabEnabled = vm.selected != 0,
                         closeTab = { vm.closeTab(vm.repoTabs[vm.selected - 1]) }
                     )
                 }
             ) {
                 Scaffold(
                     topBar = {
-                        ScrollableTabRow(
-                            selectedTabIndex = vm.selected,
-                            edgePadding = 0.dp
-                        ) {
-                            LeadingIconTab(
-                                selected = true,
-                                text = { Text("Topics") },
-                                onClick = { vm.selected = 0 },
-                                icon = { Icon(Icons.Default.Topic, null) }
-                            )
-
-                            vm.repoTabs.forEachIndexed { index, topic ->
+                        Column {
+                            ScrollableTabRow(
+                                selectedTabIndex = vm.selected,
+                                edgePadding = 0.dp
+                            ) {
                                 LeadingIconTab(
                                     selected = true,
-                                    text = { Text(topic.name) },
-                                    onClick = { vm.selected = index + 1 },
-                                    icon = {
-                                        IconsButton(
-                                            onClick = { vm.closeTab(topic) },
-                                            icon = Icons.Default.Close
-                                        )
-                                    }
+                                    text = { Text("Topics") },
+                                    onClick = { vm.selected = 0 },
+                                    icon = { Icon(Icons.Default.Topic, null) }
                                 )
+
+                                vm.repoTabs.forEachIndexed { index, topic ->
+                                    LeadingIconTab(
+                                        selected = true,
+                                        text = { Text(topic.name) },
+                                        onClick = { vm.selected = index + 1 },
+                                        modifier = Modifier.onPointerEvent(PointerEventType.Press) {
+                                            val isMiddleClick = it.button == PointerButton.Tertiary
+                                            if (isMiddleClick) vm.closeTab(topic)
+                                        },
+                                        icon = {
+                                            IconsButton(
+                                                onClick = { vm.closeTab(topic) },
+                                                icon = Icons.Default.Close
+                                            )
+                                        }
+                                    )
+                                }
                             }
+                            Divider(thickness = 2.dp)
                         }
                     }
                 ) { p ->
