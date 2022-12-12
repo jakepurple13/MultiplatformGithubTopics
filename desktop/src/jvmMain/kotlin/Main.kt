@@ -148,7 +148,7 @@ fun mains() {
                         when (vm.selected) {
                             0 -> App(topicViewModel)
                             else -> {
-                                key(vm.selected) {
+                                key(vm.selected, vm.refreshKey) {
                                     vm.repoTabs.getOrNull(vm.selected - 1)?.let { topic ->
                                         GithubRepo(
                                             vm = remember { RepoViewModel(Json.encodeToString(topic)) },
@@ -261,6 +261,7 @@ private fun FrameWindowScope.MenuOptions(
 class AppViewModel {
     val repoTabs = mutableStateListOf<GitHubTopic>()
     var selected by mutableStateOf(0)
+    var refreshKey by mutableStateOf(0)
 
     fun newTab(topic: GitHubTopic) {
         if (topic !in repoTabs)
@@ -276,7 +277,14 @@ class AppViewModel {
         val index = repoTabs.indexOf(topic) + 1
         when {
             index < selected -> selected--
-            index == selected -> selected--
+            index == selected -> {
+                if (repoTabs.size > selected) {
+                    refreshKey++
+                } else {
+                    selected--
+                }
+            }
+
             index > selected -> Unit
             else -> selected = 0
         }
