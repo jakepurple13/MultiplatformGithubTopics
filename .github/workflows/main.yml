@@ -69,6 +69,9 @@ jobs:
         id: gradle-build
         run: ./gradlew packageUberJarForCurrentOS
 
+      - name: Build Release App
+        run: ls ${{ steps.gradle-build.outputs.uber_jar_path }}
+
       - name: Uploading ${{ matrix.os }} uber jar
         if: steps.gradle-build.outcome == 'success'
         uses: actions/upload-artifact@v3
@@ -77,9 +80,6 @@ jobs:
           path: |
             ${{ steps.gradle-build.outputs.uber_jar_path }}
           if-no-files-found: error
-
-      - name: Build Release App
-        run: ls ${{ steps.gradle-build.outputs.uber_jar_path }}
 
       - name: Uploading ${{ matrix.os }} native package
         if: steps.gradle-build.outcome == 'success'
