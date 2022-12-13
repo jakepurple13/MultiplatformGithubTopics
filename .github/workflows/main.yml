@@ -64,19 +64,42 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-      - name: Build Release App
-        run: ./gradlew packageUberJarForCurrentOS
-      - name: Archive Artifacts
-        uses: actions/upload-artifact@v2
+
+      - name: Gradle Build
+        id: gradle-build
+        run: ./gradlew packageUberJarForCurrentOS package
+
+      - name: Uploading ${{ matrix.os }} uber jar
+        if: steps.gradle-build.outcome == 'success'
+        uses: actions/upload-artifact@v3
         with:
-          name: distributable-${{ matrix.os }}
-          if-no-files-found: ignore
+          name: ${{ steps.gradle-build.outputs.uber_jar_name }}
           path: |
-            build/**/*.dmg
-            build/**/*.deb
-            build/**/*.msi
-            build/**/*.exe
-            build/compose/jars/*.jar
+            ${{ steps.gradle-build.outputs.uber_jar_path }}
+          if-no-files-found: error
+
+      - name: Uploading ${{ matrix.os }} native package
+        if: steps.gradle-build.outcome == 'success'
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.gradle-build.outputs.app_pkg_name }}
+          path: |
+            ${{ steps.gradle-build.outputs.app_pkg_path }}
+          if-no-files-found: error
+
+  #      - name: Build Release App
+  #        run: ./gradlew packageUberJarForCurrentOS
+  #      - name: Archive Artifacts
+  #        uses: actions/upload-artifact@v2
+  #        with:
+  #          name: distributable-${{ matrix.os }}
+  #          if-no-files-found: ignore
+  #          path: |
+  #            build/**/*.dmg
+  #            build/**/*.deb
+  #            build/**/*.msi
+  #            build/**/*.exe
+  #            build/compose/jars/*.jar
 
   apk:
     name: Generate APK
