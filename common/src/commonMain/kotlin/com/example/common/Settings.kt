@@ -23,7 +23,8 @@ fun SettingsScreen(
     isDarkMode: Boolean,
     onModeChange: (Boolean) -> Unit,
     defaultTheme: ColorScheme? = null,
-    topPull: @Composable ColumnScope.() -> Unit = {}
+    topPull: @Composable ColumnScope.() -> Unit = {},
+    customSettings: @Composable ColumnScope.() -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -107,7 +108,7 @@ fun SettingsScreen(
                     }
                 }
                 Divider()
-
+                customSettings()
                 NavigationDrawerItem(
                     label = { Text("View Libraries Used") },
                     onClick = LocalAppActions.current.showLibrariesUsed,

@@ -15,13 +15,14 @@ class SettingInformation : RealmObject {
     var theme: Int = ThemeColors.Default.ordinal
     var isDarkMode: Boolean = true
     var singleTopic: Boolean = true
+    var closeOnExit: Boolean = false
 }
 
 class Database {
     val realm by lazy {
         Realm.open(
             RealmConfiguration.Builder(setOf(SettingInformation::class))
-                .schemaVersion(1)
+                .schemaVersion(2)
                 .migration(AutomaticSchemaMigration { })
                 .build()
         )
@@ -68,6 +69,10 @@ class Database {
 
     suspend fun changeMode(isDarkMode: Boolean) {
         updateInfo { it?.isDarkMode = isDarkMode }
+    }
+
+    suspend fun changeCloseOnExit(closeExit: Boolean) {
+        updateInfo { it?.closeOnExit = closeExit }
     }
 
     private suspend fun updateInfo(block: MutableRealm.(SettingInformation?) -> Unit) {

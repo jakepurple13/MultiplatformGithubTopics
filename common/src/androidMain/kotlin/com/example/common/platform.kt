@@ -117,6 +117,7 @@ actual fun M3MaterialThemeSetup(themeColors: ThemeColors, isDarkMode: Boolean, c
             val context = LocalContext.current
             if (isDarkMode) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
+
         else -> ThemeColors.Default.getThemeScheme(isDarkMode)
     } else themeColors.getThemeScheme(isDarkMode)
     MaterialTheme(colorScheme = colorScheme.animate(), content = content)

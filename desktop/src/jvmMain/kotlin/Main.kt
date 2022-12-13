@@ -54,21 +54,19 @@ fun mains() {
         .map { ThemeColors.values()[it] }
         .distinctUntilChanged()
 
+    val closeOnExit = s
+        .map { it.closeOnExit }
+        .distinctUntilChanged()
+
     application {
         val vm = remember { AppViewModel() }
         val scope = rememberCoroutineScope()
         var showThemeSelector by remember { mutableStateOf(false) }
         val themeColors by currentThemes.collectAsState(ThemeColors.Default)
         val isDarkMode by isDarkModes.collectAsState(true)
+        val canCloseOnExit by closeOnExit.collectAsState(false)
         val snackbarHostState = remember { SnackbarHostState() }
         var showLibrariesUsed by remember { mutableStateOf(false) }
-
-        val icon = painterResource("logo.png")
-
-        Tray(
-            icon = icon,
-            menu = { Item("Quit App", onClick = ::exitApplication) }
-        )
 
         Theme(
             themeColors = themeColors,
@@ -88,10 +86,23 @@ fun mains() {
                 showLibrariesUsed = { showLibrariesUsed = true }
             )
         ) {
+            Tray(
+                icon = painterResource("logo.png"),
+                onAction = { vm.showTopicWindow = true },
+                menu = {
+                    if (!canCloseOnExit) Item("Open Window", onClick = { vm.showTopicWindow = true })
+                    Item("Quit App", onClick = ::exitApplication)
+                }
+            )
+
             val topicViewModel = remember { TopicViewModel(scope, s) }
             WindowWithBar(
+                visible = vm.showTopicWindow,
                 windowTitle = "GitHub Topics",
-                onCloseRequest = ::exitApplication,
+                onCloseRequest = if (canCloseOnExit) ::exitApplication
+                else {
+                    { vm.showTopicWindow = false }
+                },
                 onPreviewKeyEvent = {
                     if (it.type == KeyEventType.KeyDown) {
                         when {
@@ -127,7 +138,7 @@ fun mains() {
                     MenuOptions(
                         isDarkMode = isDarkMode,
                         onModeChange = { scope.launch { db.changeMode(it) } },
-                        onShowColors = { showThemeSelector = true },
+                        onShowSettings = { showThemeSelector = true },
                         refresh = { scope.launch { topicViewModel.refresh() } },
                         previousTab = {
                             if (vm.selected == 0) {
@@ -224,7 +235,7 @@ fun mains() {
                             MenuOptions(
                                 isDarkMode = isDarkMode,
                                 onModeChange = { scope.launch { db.changeMode(it) } },
-                                onShowColors = { showThemeSelector = true }
+                                onShowSettings = { showThemeSelector = true }
                             )
                         }
                     ) {
@@ -246,7 +257,21 @@ fun mains() {
                     setCurrentThemeColors = { scope.launch { db.changeTheme(it) } },
                     isDarkMode = isDarkMode,
                     onModeChange = { scope.launch { db.changeMode(it) } }
-                )
+                ) {
+                    NavigationDrawerItem(
+                        label = { Text("Close Application on Exit? Or just hide window?") },
+                        badge = {
+                            Switch(
+                                checked = canCloseOnExit,
+                                onCheckedChange = { scope.launch { db.changeCloseOnExit(it) } }
+                            )
+                        },
+                        onClick = { scope.launch { db.changeCloseOnExit(!canCloseOnExit) } },
+                        selected = true,
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    )
+                    Divider()
+                }
             }
 
             WindowWithBar(
@@ -264,7 +289,7 @@ fun mains() {
 private fun FrameWindowScope.MenuOptions(
     isDarkMode: Boolean,
     onModeChange: (Boolean) -> Unit,
-    onShowColors: () -> Unit,
+    onShowSettings: () -> Unit,
     refresh: (() -> Unit)? = null,
     previousTab: () -> Unit = {},
     nextTab: () -> Unit = {},
@@ -272,7 +297,7 @@ private fun FrameWindowScope.MenuOptions(
     closeTab: () -> Unit = {}
 ) {
     MenuBar {
-        Menu("Theme", mnemonic = 'T') {
+        Menu("Settings", mnemonic = 'T') {
             CheckboxItem(
                 "Light/Dark Mode",
                 checked = isDarkMode,
@@ -280,8 +305,8 @@ private fun FrameWindowScope.MenuOptions(
             )
 
             Item(
-                "Colors",
-                onClick = onShowColors
+                "Settings",
+                onClick = onShowSettings
             )
         }
 
@@ -333,6 +358,7 @@ private fun FrameWindowScope.MenuOptions(
 }
 
 class AppViewModel {
+    var showTopicWindow by mutableStateOf(true)
     val repoTabs = mutableStateListOf<GitHubTopic>()
     val repoWindows = mutableStateListOf<GitHubTopic>()
     var selected by mutableStateOf(0)
