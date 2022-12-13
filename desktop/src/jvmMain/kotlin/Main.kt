@@ -14,9 +14,11 @@ import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.MenuBar
+import androidx.compose.ui.window.Tray
 import androidx.compose.ui.window.application
 import com.example.common.*
 import io.realm.kotlin.ext.asFlow
@@ -61,6 +63,13 @@ fun mains() {
         val snackbarHostState = remember { SnackbarHostState() }
         var showLibrariesUsed by remember { mutableStateOf(false) }
 
+        val icon = painterResource("logo.png")
+
+        Tray(
+            icon = icon,
+            menu = { Item("Quit App", onClick = ::exitApplication) }
+        )
+
         Theme(
             themeColors = themeColors,
             isDarkMode = isDarkMode,
@@ -83,6 +92,36 @@ fun mains() {
             WindowWithBar(
                 windowTitle = "GitHub Topics",
                 onCloseRequest = ::exitApplication,
+                onPreviewKeyEvent = {
+                    if (it.type == KeyEventType.KeyDown) {
+                        when {
+                            it.isMetaPressed && it.key == Key.W && vm.selected != 0 -> {
+                                vm.repoTabs.getOrNull(vm.selected - 1)?.let { it1 -> vm.closeTab(it1) }
+                                true
+                            }
+
+                            it.isCtrlPressed && it.isShiftPressed && it.key == Key.Tab -> {
+                                if (vm.selected == 0) {
+                                    vm.selected = vm.repoTabs.size
+                                } else {
+                                    vm.selected--
+                                }
+                                true
+                            }
+
+                            it.isCtrlPressed && it.key == Key.Tab -> {
+                                if (vm.selected == vm.repoTabs.size) {
+                                    vm.selected = 0
+                                } else {
+                                    vm.selected++
+                                }
+                                true
+                            }
+
+                            else -> false
+                        }
+                    } else false
+                },
                 snackbarHostState = snackbarHostState,
                 frameWindowScope = {
                     MenuOptions(

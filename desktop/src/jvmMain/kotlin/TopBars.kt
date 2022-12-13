@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -33,6 +34,8 @@ fun ApplicationScope.WindowWithBar(
     onCloseRequest: () -> Unit,
     visible: Boolean = true,
     windowTitle: String = "",
+    onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
+    onKeyEvent: (KeyEvent) -> Boolean = { false },
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     bottomBar: @Composable () -> Unit = {},
     frameWindowScope: @Composable FrameWindowScope.() -> Unit = {},
@@ -46,7 +49,9 @@ fun ApplicationScope.WindowWithBar(
         transparent = true,
         onCloseRequest = onCloseRequest,
         visible = visible,
-        icon = painterResource("logo.png")
+        icon = painterResource("logo.png"),
+        onPreviewKeyEvent = onPreviewKeyEvent,
+        onKeyEvent = onKeyEvent
     ) {
         frameWindowScope()
         val hasFocus = LocalWindowInfo.current.isWindowFocused
