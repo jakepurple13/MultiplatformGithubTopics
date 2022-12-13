@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -53,63 +54,65 @@ fun ApplicationScope.WindowWithBar(
         onPreviewKeyEvent = onPreviewKeyEvent,
         onKeyEvent = onKeyEvent
     ) {
-        frameWindowScope()
-        val hasFocus = LocalWindowInfo.current.isWindowFocused
-        Surface(
-            shape = when (hostOs) {
-                OS.Linux -> RoundedCornerShape(8.dp)
-                OS.Windows -> RectangleShape
-                OS.MacOS -> RoundedCornerShape(8.dp)
-                else -> RoundedCornerShape(8.dp)
-            },
-            modifier = Modifier.animateContentSize(),
-            border = ButtonDefaults.outlinedButtonBorder,
-        ) {
-            Scaffold(
-                topBar = {
-                    Column {
-                        WindowDraggableArea(
-                            modifier = Modifier.combinedClickable(
-                                indication = null,
-                                interactionSource = remember { MutableInteractionSource() },
-                                onClick = {},
-                                onDoubleClick = {
-                                    state.placement =
-                                        if (state.placement != WindowPlacement.Maximized) {
-                                            WindowPlacement.Maximized
-                                        } else {
-                                            WindowPlacement.Floating
-                                        }
-                                }
-                            )
-                        ) {
-                            TopAppBar(
-                                backgroundColor = animateColorAsState(
-                                    if (hasFocus) M3MaterialTheme.colorScheme.surface
-                                    else M3MaterialTheme.colorScheme.surfaceVariant
-                                ).value,
-                                elevation = 0.dp,
+        CompositionLocalProvider(LocalWindow provides this) {
+            frameWindowScope()
+            val hasFocus = LocalWindowInfo.current.isWindowFocused
+            Surface(
+                shape = when (hostOs) {
+                    OS.Linux -> RoundedCornerShape(8.dp)
+                    OS.Windows -> RectangleShape
+                    OS.MacOS -> RoundedCornerShape(8.dp)
+                    else -> RoundedCornerShape(8.dp)
+                },
+                modifier = Modifier.animateContentSize(),
+                border = ButtonDefaults.outlinedButtonBorder,
+            ) {
+                Scaffold(
+                    topBar = {
+                        Column {
+                            WindowDraggableArea(
+                                modifier = Modifier.combinedClickable(
+                                    indication = null,
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    onClick = {},
+                                    onDoubleClick = {
+                                        state.placement =
+                                            if (state.placement != WindowPlacement.Maximized) {
+                                                WindowPlacement.Maximized
+                                            } else {
+                                                WindowPlacement.Floating
+                                            }
+                                    }
+                                )
                             ) {
-                                when (hostOs) {
-                                    OS.Linux -> LinuxTopBar(state, onCloseRequest, windowTitle)
-                                    OS.Windows -> WindowsTopBar(state, onCloseRequest, windowTitle)
-                                    OS.MacOS -> MacOsTopBar(state, onCloseRequest, windowTitle)
-                                    else -> {}
+                                TopAppBar(
+                                    backgroundColor = animateColorAsState(
+                                        if (hasFocus) M3MaterialTheme.colorScheme.surface
+                                        else M3MaterialTheme.colorScheme.surfaceVariant
+                                    ).value,
+                                    elevation = 0.dp,
+                                ) {
+                                    when (hostOs) {
+                                        OS.Linux -> LinuxTopBar(state, onCloseRequest, windowTitle)
+                                        OS.Windows -> WindowsTopBar(state, onCloseRequest, windowTitle)
+                                        OS.MacOS -> MacOsTopBar(state, onCloseRequest, windowTitle)
+                                        else -> {}
+                                    }
                                 }
                             }
+                            Divider(color = M3MaterialTheme.colorScheme.onSurface)
                         }
-                        Divider(color = M3MaterialTheme.colorScheme.onSurface)
+                    },
+                    containerColor = M3MaterialTheme.colorScheme.surface,
+                    bottomBar = bottomBar,
+                    snackbarHost = {
+                        SnackbarHost(
+                            hostState = snackbarHostState,
+                            snackbar = { Snackbar(snackbarData = it) }
+                        )
                     }
-                },
-                containerColor = M3MaterialTheme.colorScheme.surface,
-                bottomBar = bottomBar,
-                snackbarHost = {
-                    SnackbarHost(
-                        hostState = snackbarHostState,
-                        snackbar = { Snackbar(snackbarData = it) }
-                    )
-                }
-            ) { padding -> Surface(modifier = Modifier.padding(padding)) { content() } }
+                ) { padding -> Surface(modifier = Modifier.padding(padding)) { content() } }
+            }
         }
     }
 }
