@@ -140,7 +140,7 @@ fun mains() {
                                     )
                                 }
                             }
-                            Divider(thickness = 2.dp)
+                            Divider(thickness = 2.dp, color = MaterialTheme.colorScheme.outline)
                         }
                     }
                 ) { p ->
