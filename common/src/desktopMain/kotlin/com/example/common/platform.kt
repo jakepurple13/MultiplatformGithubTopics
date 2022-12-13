@@ -45,6 +45,7 @@ actual fun TopicItemModification(item: GitHubTopic, content: @Composable () -> U
             listOf(
                 ContextMenuItem("Open") { actions.onCardClick(item) },
                 ContextMenuItem("Open in New Tab") { actions.onNewTabOpen(item) },
+                ContextMenuItem("Open in New Window") { actions.onNewWindow(item) },
                 ContextMenuItem("Open in Browser") { uriHandler.openUri(item.htmlUrl) },
                 ContextMenuItem("Share") { actions.onShareClick(item) },
             )

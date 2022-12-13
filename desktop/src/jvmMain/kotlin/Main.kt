@@ -67,6 +67,7 @@ fun mains() {
             appActions = AppActions(
                 onCardClick = vm::newTab,
                 onNewTabOpen = vm::newTabAndOpen,
+                onNewWindow = vm.repoWindows::add,
                 onShareClick = {
                     val stringSelection = StringSelection(it.htmlUrl)
                     val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
@@ -158,6 +159,40 @@ fun mains() {
                                 }
                             }
                         }
+                    }
+                }
+            }
+
+            vm.repoWindows.forEach { topic ->
+                val topicSnackbarHostState = remember { SnackbarHostState() }
+
+                CompositionLocalProvider(
+                    LocalAppActions provides LocalAppActions.current.copy(
+                        onShareClick = {
+                            val stringSelection = StringSelection(it.htmlUrl)
+                            val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
+                            clipboard.setContents(stringSelection, null)
+                            Toolkit.getDefaultToolkit().beep()
+                            scope.launch { topicSnackbarHostState.showSnackbar("Copied") }
+                        }
+                    )
+                ) {
+                    WindowWithBar(
+                        windowTitle = topic.name,
+                        onCloseRequest = { vm.closeWindow(topic) },
+                        snackbarHostState = topicSnackbarHostState,
+                        frameWindowScope = {
+                            MenuOptions(
+                                isDarkMode = isDarkMode,
+                                onModeChange = { scope.launch { db.changeMode(it) } },
+                                onShowColors = { showThemeSelector = true }
+                            )
+                        }
+                    ) {
+                        GithubRepo(
+                            vm = remember { RepoViewModel(Json.encodeToString(topic)) },
+                            backAction = { vm.closeWindow(topic) }
+                        )
                     }
                 }
             }
@@ -260,8 +295,13 @@ private fun FrameWindowScope.MenuOptions(
 
 class AppViewModel {
     val repoTabs = mutableStateListOf<GitHubTopic>()
+    val repoWindows = mutableStateListOf<GitHubTopic>()
     var selected by mutableStateOf(0)
     var refreshKey by mutableStateOf(0)
+
+    fun closeWindow(topic: GitHubTopic) {
+        repoWindows.remove(topic)
+    }
 
     fun newTab(topic: GitHubTopic) {
         if (topic !in repoTabs)
