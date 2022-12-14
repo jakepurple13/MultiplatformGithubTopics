@@ -56,12 +56,12 @@ actual fun TopicItemModification(item: GitHubTopic, content: @Composable () -> U
 
 @OptIn(ExperimentalSplitPaneApi::class)
 @Composable
-actual fun TopicDrawerLocation(vm: BaseTopicVM) {
+actual fun TopicDrawerLocation(vm: BaseTopicVM, favoritesVM: FavoritesVM) {
     val splitter = rememberSplitPaneState()
 
     HorizontalSplitPane(splitPaneState = splitter) {
         first(250.dp) { TopicDrawer(vm) }
-        second(550.dp) { GithubTopicUI(vm) }
+        second(550.dp) { GithubTopicUI(vm, favoritesVM) }
 
         splitter {
             visiblePart {
@@ -219,3 +219,28 @@ class TopicViewModel(private val viewModelScope: CoroutineScope, s: Flow<Setting
 }
 
 class RepoViewModel(t: String) : RepoVM by BaseRepoViewModel(t)
+
+class FavoritesViewModel(
+    private val viewModelScope: CoroutineScope,
+    database: Database
+) : FavoritesVM by BaseFavoritesViewModel(database) {
+    init {
+        viewModelScope.launch {
+            db.favoriteRepos()
+                .distinctUntilChanged()
+                .onEach {
+                    items.clear()
+                    items.addAll(it)
+                }
+                .collect()
+        }
+    }
+
+    override fun addFavorite(repo: GitHubTopic) {
+        viewModelScope.launch { db.addFavorite(repo) }
+    }
+
+    override fun removeFavorite(repo: GitHubTopic) {
+        viewModelScope.launch { db.removeFavorite(repo) }
+    }
+}

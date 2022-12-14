@@ -11,5 +11,5 @@ import kotlinx.coroutines.flow.flow
 @Composable
 fun AppPreview() {
     val scope = rememberCoroutineScope()
-    App(remember { TopicViewModel(scope, flow { }) })
+    App(remember { TopicViewModel(scope, flow { }) }, remember { FavoritesViewModel(scope, Database()) })
 }

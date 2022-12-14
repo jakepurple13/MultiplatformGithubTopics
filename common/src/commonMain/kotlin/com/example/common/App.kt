@@ -52,17 +52,22 @@ data class AppActions(
     val onNewWindow: (GitHubTopic) -> Unit = {},
     val onShareClick: (GitHubTopic) -> Unit = {},
     val onSettingsClick: () -> Unit = {},
-    val showLibrariesUsed: () -> Unit = {}
+    val showLibrariesUsed: () -> Unit = {},
+    val showFavorites: () -> Unit = {}
 )
 
 @Composable
-fun App(vm: BaseTopicVM) {
-    TopicDrawerLocation(vm)
+fun App(vm: BaseTopicVM, favoritesVM: FavoritesVM) {
+    TopicDrawerLocation(vm, favoritesVM)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GithubTopicUI(vm: BaseTopicVM, navigationIcon: @Composable () -> Unit = {}) {
+fun GithubTopicUI(
+    vm: BaseTopicVM,
+    favoritesVM: FavoritesVM,
+    navigationIcon: @Composable () -> Unit = {}
+) {
     val appActions = LocalAppActions.current
     val scope = rememberCoroutineScope()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarScrollState())
@@ -103,7 +108,8 @@ fun GithubTopicUI(vm: BaseTopicVM, navigationIcon: @Composable () -> Unit = {}) 
             padding = padding,
             state = state,
             vm = vm,
-            onCardClick = appActions.onCardClick
+            onCardClick = appActions.onCardClick,
+            favoritesVM = favoritesVM
         )
     }
 }
@@ -114,6 +120,7 @@ fun TopicContent(
     padding: PaddingValues,
     state: LazyListState,
     onCardClick: (GitHubTopic) -> Unit,
+    favoritesVM: FavoritesVM,
     vm: BaseTopicVM
 ) {
     SwipeRefreshWrapper(
@@ -139,7 +146,8 @@ fun TopicContent(
                             savedTopics = vm.topicList,
                             currentTopics = vm.currentTopics,
                             onCardClick = onCardClick,
-                            onTopicClick = vm::addTopic
+                            onTopicClick = vm::addTopic,
+                            favoritesVM = favoritesVM
                         )
                     }
                 }
@@ -192,6 +200,7 @@ fun InfiniteListHandler(
 @Composable
 fun TopicItem(
     item: GitHubTopic,
+    favoritesVM: FavoritesVM,
     savedTopics: List<String>,
     currentTopics: List<String>,
     onCardClick: (GitHubTopic) -> Unit,
@@ -225,6 +234,15 @@ fun TopicItem(
                 trailingContent = {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         IconsButton(onClick = { actions.onShareClick(item) }, icon = Icons.Default.Share)
+
+                        val isFavorite by remember { derivedStateOf { item in favoritesVM.items } }
+                        IconsButton(
+                            onClick = {
+                                if (isFavorite) favoritesVM.removeFavorite(item)
+                                else favoritesVM.addFavorite(item)
+                            },
+                            icon = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder
+                        )
 
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.Star, contentDescription = null)
@@ -293,7 +311,13 @@ fun TopicItem(
 fun TopicDrawer(vm: BaseTopicVM) {
     var topicText by remember { mutableStateOf("") }
     Scaffold(
-        topBar = { SmallTopAppBar(title = { Text("Topics") }) },
+        topBar = {
+            val actions = LocalAppActions.current
+            SmallTopAppBar(
+                title = { Text("Topics") },
+                actions = { IconsButton(onClick = actions.showFavorites, icon = Icons.Default.Favorite) }
+            )
+        },
         bottomBar = {
             BottomAppBar {
                 OutlinedTextField(
@@ -383,6 +407,7 @@ fun IconsButton(
 @Composable
 fun GithubRepo(
     vm: RepoVM,
+    favoritesVM: FavoritesVM,
     backAction: () -> Unit
 ) {
     val appActions = LocalAppActions.current
@@ -426,6 +451,19 @@ fun GithubRepo(
                         onClick = { appActions.onShareClick(vm.item) },
                         icon = { Icon(Icons.Default.Share, null) },
                         label = { Text("Share") }
+                    )
+
+                    val isFavorite by remember { derivedStateOf { vm.item in favoritesVM.items } }
+                    NavigationBarItem(
+                        selected = false,
+                        onClick = {
+                            if (isFavorite) favoritesVM.removeFavorite(vm.item)
+                            else favoritesVM.addFavorite(vm.item)
+                        },
+                        icon = {
+                            Icon(if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder, null)
+                        },
+                        label = { Text("Favorite") }
                     )
                 }
             )

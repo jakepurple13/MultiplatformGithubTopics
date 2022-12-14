@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Topic
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -61,6 +62,8 @@ fun mains() {
     application {
         val vm = remember { AppViewModel() }
         val scope = rememberCoroutineScope()
+        val favoritesVM = remember { FavoritesViewModel(scope, db) }
+        val topicViewModel = remember { TopicViewModel(scope, s) }
         var showThemeSelector by remember { mutableStateOf(false) }
         val themeColors by currentThemes.collectAsState(ThemeColors.Default)
         val isDarkMode by isDarkModes.collectAsState(true)
@@ -83,7 +86,8 @@ fun mains() {
                     scope.launch { snackbarHostState.showSnackbar("Copied") }
                 },
                 onSettingsClick = { showThemeSelector = true },
-                showLibrariesUsed = { showLibrariesUsed = true }
+                showLibrariesUsed = { showLibrariesUsed = true },
+                showFavorites = { vm.selectTab(1) }
             )
         ) {
             Tray(
@@ -95,7 +99,6 @@ fun mains() {
                 }
             )
 
-            val topicViewModel = remember { TopicViewModel(scope, s) }
             WindowWithBar(
                 visible = vm.showTopicWindow,
                 windowTitle = "GitHub Topics",
@@ -106,26 +109,18 @@ fun mains() {
                 onPreviewKeyEvent = {
                     if (it.type == KeyEventType.KeyDown) {
                         when {
-                            it.isMetaPressed && it.key == Key.W && vm.selected != 0 -> {
-                                vm.repoTabs.getOrNull(vm.selected - 1)?.let { it1 -> vm.closeTab(it1) }
+                            it.isMetaPressed && it.key == Key.W && (vm.selected != 0 && vm.selected != 1) -> {
+                                vm.repoTabs.getOrNull(vm.selected - 2)?.let { it1 -> vm.closeTab(it1) }
                                 true
                             }
 
                             it.isCtrlPressed && it.isShiftPressed && it.key == Key.Tab -> {
-                                if (vm.selected == 0) {
-                                    vm.selected = vm.repoTabs.size
-                                } else {
-                                    vm.selected--
-                                }
+                                vm.previousTab()
                                 true
                             }
 
                             it.isCtrlPressed && it.key == Key.Tab -> {
-                                if (vm.selected == vm.repoTabs.size) {
-                                    vm.selected = 0
-                                } else {
-                                    vm.selected++
-                                }
+                                vm.nextTab()
                                 true
                             }
 
@@ -145,22 +140,10 @@ fun mains() {
                         onModeChange = { scope.launch { db.changeMode(it) } },
                         onShowSettings = { showThemeSelector = true },
                         refresh = { scope.launch { topicViewModel.refresh() } },
-                        previousTab = {
-                            if (vm.selected == 0) {
-                                vm.selected = vm.repoTabs.size
-                            } else {
-                                vm.selected--
-                            }
-                        },
-                        nextTab = {
-                            if (vm.selected == vm.repoTabs.size) {
-                                vm.selected = 0
-                            } else {
-                                vm.selected++
-                            }
-                        },
-                        closeTabEnabled = vm.selected != 0,
-                        closeTab = { vm.closeTab(vm.repoTabs[vm.selected - 1]) },
+                        previousTab = vm::previousTab,
+                        nextTab = vm::nextTab,
+                        closeTabEnabled = vm.selected != 0 && vm.selected != 1,
+                        closeTab = { vm.closeTab(vm.repoTabs[vm.selected - 2]) },
                         canReopen = vm.canReopen,
                         reopen = vm::reopenTabOrWindow
                     )
@@ -174,17 +157,24 @@ fun mains() {
                                 edgePadding = 0.dp
                             ) {
                                 LeadingIconTab(
-                                    selected = true,
+                                    selected = vm.selected == 0,
                                     text = { Text("Topics") },
-                                    onClick = { vm.selected = 0 },
+                                    onClick = { vm.selectTab(0) },
                                     icon = { Icon(Icons.Default.Topic, null) }
+                                )
+
+                                LeadingIconTab(
+                                    selected = vm.selected == 1,
+                                    text = { Text("Favorites") },
+                                    onClick = { vm.selectTab(1) },
+                                    icon = { Icon(Icons.Default.Favorite, null) }
                                 )
 
                                 vm.repoTabs.forEachIndexed { index, topic ->
                                     LeadingIconTab(
-                                        selected = true,
+                                        selected = vm.selected == index + 2,
                                         text = { Text(topic.name) },
-                                        onClick = { vm.selected = index + 1 },
+                                        onClick = { vm.selectTab(index + 2) },
                                         modifier = Modifier.onPointerEvent(PointerEventType.Press) {
                                             val isMiddleClick = it.button == PointerButton.Tertiary
                                             if (isMiddleClick) vm.closeTab(topic)
@@ -204,12 +194,14 @@ fun mains() {
                 ) { p ->
                     Box(modifier = Modifier.padding(p)) {
                         when (vm.selected) {
-                            0 -> App(topicViewModel)
+                            0 -> App(topicViewModel, favoritesVM)
+                            1 -> FavoritesUi(favoritesVM) { vm.selectTab(0) }
                             else -> {
                                 key(vm.selected, vm.refreshKey) {
-                                    vm.repoTabs.getOrNull(vm.selected - 1)?.let { topic ->
+                                    vm.repoTabs.getOrNull(vm.selected - 2)?.let { topic ->
                                         GithubRepo(
                                             vm = remember { RepoViewModel(Json.encodeToString(topic)) },
+                                            favoritesVM = favoritesVM,
                                             backAction = { vm.closeTab(topic) }
                                         )
                                     }
@@ -248,6 +240,7 @@ fun mains() {
                     ) {
                         GithubRepo(
                             vm = remember { RepoViewModel(Json.encodeToString(topic)) },
+                            favoritesVM = favoritesVM,
                             backAction = { vm.closeWindow(topic) }
                         )
                     }
@@ -334,7 +327,7 @@ private fun FrameWindowScope.MenuOptions(
                 Item("Libraries Used", onClick = LocalAppActions.current.showLibrariesUsed)
             }
         }
-        Menu("Navigation") {
+        Menu("Window") {
             Item(
                 "Previous Tab",
                 onClick = previousTab,
@@ -382,8 +375,8 @@ class AppViewModel {
     var showTopicWindow by mutableStateOf(true)
     val repoTabs = mutableStateListOf<GitHubTopic>()
     val repoWindows = mutableStateListOf<GitHubTopic>()
-    private val closedTabRepos = mutableSetOf<GitHubTopic>()
-    private val closedWindowRepos = mutableSetOf<GitHubTopic>()
+    private val closedTabRepos = mutableStateListOf<GitHubTopic>()
+    private val closedWindowRepos = mutableStateListOf<GitHubTopic>()
     private var closedWindowType = WindowType.None
     var selected by mutableStateOf(0)
     var refreshKey by mutableStateOf(0)
@@ -430,15 +423,15 @@ class AppViewModel {
 
     fun newTabAndOpen(topic: GitHubTopic) {
         repoTabs.add(topic)
-        selected = repoTabs.indexOf(topic) + 1
+        selected = repoTabs.indexOf(topic) + 2
     }
 
     fun closeTab(topic: GitHubTopic) {
-        val index = repoTabs.indexOf(topic) + 1
+        val index = repoTabs.indexOf(topic) + 2
         when {
             index < selected -> selected--
             index == selected -> {
-                if (repoTabs.size > selected) {
+                if (repoTabs.size + 1 > selected) {
                     refreshKey++
                 } else {
                     selected--
@@ -453,5 +446,25 @@ class AppViewModel {
             closedWindowType = WindowType.Tab
             closedTabRepos.add(topic)
         }
+    }
+
+    fun nextTab() {
+        if (selected == repoTabs.size + 1) {
+            selected = 0
+        } else {
+            selected++
+        }
+    }
+
+    fun previousTab() {
+        if (selected == 0) {
+            selected = repoTabs.size + 1
+        } else {
+            selected--
+        }
+    }
+
+    fun selectTab(index: Int) {
+        selected = index
     }
 }

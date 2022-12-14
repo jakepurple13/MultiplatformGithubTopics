@@ -18,6 +18,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
@@ -66,9 +67,15 @@ actual fun TopicItemModification(item: GitHubTopic, content: @Composable () -> U
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+val LocalTopicDrawerState = staticCompositionLocalOf<DrawerState> { error("Nothing Here!") }
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-actual fun TopicDrawerLocation(vm: BaseTopicVM) {
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+actual fun TopicDrawerLocation(
+    vm: BaseTopicVM,
+    favoritesVM: FavoritesVM
+) {
+    val drawerState = LocalTopicDrawerState.current
     val scope = rememberCoroutineScope()
 
     DismissibleNavigationDrawer(
@@ -77,6 +84,7 @@ actual fun TopicDrawerLocation(vm: BaseTopicVM) {
     ) {
         GithubTopicUI(
             vm = vm,
+            favoritesVM = favoritesVM,
             navigationIcon = {
                 IconsButton(
                     onClick = { scope.launch { if (drawerState.isOpen) drawerState.close() else drawerState.open() } },
@@ -330,3 +338,25 @@ class TopicViewModel(s: Flow<SettingInformation>) : ViewModel(), BaseTopicVM by 
 }
 
 class RepoViewModel(t: String) : ViewModel(), RepoVM by BaseRepoViewModel(t)
+
+class FavoritesViewModel(database: Database) : ViewModel(), FavoritesVM by BaseFavoritesViewModel(database) {
+    init {
+        viewModelScope.launch {
+            db.favoriteRepos()
+                .distinctUntilChanged()
+                .onEach {
+                    items.clear()
+                    items.addAll(it)
+                }
+                .collect()
+        }
+    }
+
+    override fun addFavorite(repo: GitHubTopic) {
+        viewModelScope.launch { db.addFavorite(repo) }
+    }
+
+    override fun removeFavorite(repo: GitHubTopic) {
+        viewModelScope.launch { db.removeFavorite(repo) }
+    }
+}

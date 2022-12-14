@@ -9,9 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
@@ -42,15 +40,17 @@ import kotlinx.serialization.json.Json
 
 @PrismBundle(includeAll = true)
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalMaterialNavigationApi::class)
+    @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val db = Database()
         setContent {
             val vm: AppViewModel = viewModel { AppViewModel(db) }
+            val favoritesVM: FavoritesViewModel = viewModel { FavoritesViewModel(db) }
             val bottomSheetNavigator = rememberBottomSheetNavigator()
             val navController = rememberNavController(bottomSheetNavigator)
             val scope = rememberCoroutineScope()
+            val topicDrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
             Theme(
                 themeColors = vm.themeColors,
                 isDarkMode = vm.isDarkMode,
@@ -71,6 +71,10 @@ class MainActivity : ComponentActivity() {
                     },
                     onSettingsClick = { navController.navigate(Screen.Settings.route) },
                     showLibrariesUsed = { navController.navigate(Screen.LibrariesUsed.route) },
+                    showFavorites = {
+                        scope.launch { topicDrawerState.close() }
+                        navController.navigate(Screen.Favorites.route)
+                    },
                 )
             ) {
                 val view = LocalView.current
@@ -92,7 +96,16 @@ class MainActivity : ComponentActivity() {
                         startDestination = Screen.App.route
                     ) {
 
-                        swipeable(Screen.App.route) { App(vm = viewModel { TopicViewModel(vm.settingInformation) }) }
+                        swipeable(Screen.App.route) {
+                            CompositionLocalProvider(
+                                LocalTopicDrawerState provides topicDrawerState
+                            ) {
+                                App(
+                                    vm = viewModel { TopicViewModel(vm.settingInformation) },
+                                    favoritesVM = favoritesVM
+                                )
+                            }
+                        }
 
                         swipeable(
                             Screen.RepoReadMe.route + "/{topic}",
@@ -104,11 +117,19 @@ class MainActivity : ComponentActivity() {
                                         createSavedStateHandle().get<String>("topic").orEmpty()
                                     )
                                 },
+                                favoritesVM = favoritesVM,
                                 backAction = { navController.popBackStack() }
                             )
                         }
 
                         swipeable(Screen.LibrariesUsed.route) { LibrariesUsed { navController.popBackStack() } }
+
+                        swipeable(Screen.Favorites.route) {
+                            FavoritesUi(
+                                favoritesVM = favoritesVM,
+                                backAction = { navController.popBackStack() }
+                            )
+                        }
 
                         bottomSheet(Screen.Settings.route) {
                             val context = LocalContext.current
@@ -122,6 +143,7 @@ class MainActivity : ComponentActivity() {
                                         if (vm.isDarkMode) dynamicDarkColorScheme(context)
                                         else dynamicLightColorScheme(context)
                                     }
+
                                     else -> ThemeColors.Default.getThemeScheme(vm.isDarkMode)
                                 },
                                 topPull = {
@@ -187,4 +209,5 @@ sealed class Screen(val route: String) {
     object RepoReadMe : Screen("repoReadMe")
     object Settings : Screen("settings")
     object LibrariesUsed : Screen("librariesUsed")
+    object Favorites : Screen("favorites")
 }

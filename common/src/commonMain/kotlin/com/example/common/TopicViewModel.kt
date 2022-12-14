@@ -96,3 +96,18 @@ interface RepoVM {
     var error: Boolean
     suspend fun load()
 }
+
+class BaseFavoritesViewModel(database: Database) : FavoritesVM {
+    override val items: SnapshotStateList<GitHubTopic> = mutableStateListOf()
+    override val db: FavoritesDatabase by lazy { FavoritesDatabase(database) }
+    override fun addFavorite(repo: GitHubTopic) = Unit
+    override fun removeFavorite(repo: GitHubTopic) = Unit
+}
+
+interface FavoritesVM {
+    val items: SnapshotStateList<GitHubTopic>
+    val db: FavoritesDatabase
+
+    fun addFavorite(repo: GitHubTopic)
+    fun removeFavorite(repo: GitHubTopic)
+}
