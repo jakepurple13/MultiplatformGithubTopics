@@ -235,7 +235,10 @@ fun TopicItem(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         IconsButton(onClick = { actions.onShareClick(item) }, icon = Icons.Default.Share)
 
-                        val isFavorite by remember { derivedStateOf { item in favoritesVM.items } }
+                        val isFavorite by remember {
+                            derivedStateOf { favoritesVM.items.any { it.htmlUrl == item.htmlUrl } }
+                        }
+
                         IconsButton(
                             onClick = {
                                 if (isFavorite) favoritesVM.removeFavorite(item)
@@ -453,7 +456,10 @@ fun GithubRepo(
                         label = { Text("Share") }
                     )
 
-                    val isFavorite by remember { derivedStateOf { vm.item in favoritesVM.items } }
+                    val isFavorite by remember {
+                        derivedStateOf { favoritesVM.items.any { it.htmlUrl == vm.item.htmlUrl } }
+                    }
+
                     NavigationBarItem(
                         selected = false,
                         onClick = {
