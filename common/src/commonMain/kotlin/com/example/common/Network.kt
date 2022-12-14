@@ -87,7 +87,10 @@ object Network {
 
     private val client by lazy {
         HttpClient {
-            install(Logging)
+            install(Logging) {
+                //logger = Logger.SIMPLE
+                //level = LogLevel.ALL
+            }
             install(ContentNegotiation) { json(json) }
         }
     }

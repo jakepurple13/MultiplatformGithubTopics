@@ -129,6 +129,11 @@ fun mains() {
                                 true
                             }
 
+                            it.isMetaPressed && it.isShiftPressed && it.key == Key.T -> {
+                                vm.reopenTabOrWindow()
+                                true
+                            }
+
                             else -> false
                         }
                     } else false
@@ -155,7 +160,9 @@ fun mains() {
                             }
                         },
                         closeTabEnabled = vm.selected != 0,
-                        closeTab = { vm.closeTab(vm.repoTabs[vm.selected - 1]) }
+                        closeTab = { vm.closeTab(vm.repoTabs[vm.selected - 1]) },
+                        canReopen = vm.canReopen,
+                        reopen = vm::reopenTabOrWindow
                     )
                 }
             ) {
@@ -294,7 +301,9 @@ private fun FrameWindowScope.MenuOptions(
     previousTab: () -> Unit = {},
     nextTab: () -> Unit = {},
     closeTabEnabled: Boolean = false,
-    closeTab: () -> Unit = {}
+    closeTab: () -> Unit = {},
+    canReopen: Boolean = false,
+    reopen: () -> Unit = {}
 ) {
     MenuBar {
         Menu("Settings", mnemonic = 'T') {
@@ -353,6 +362,18 @@ private fun FrameWindowScope.MenuOptions(
                     key = Key.W
                 )
             )
+
+            Item(
+                "Reopen Tab/Window",
+                enabled = canReopen,
+                onClick = reopen,
+                shortcut = KeyShortcut(
+                    meta = hostOs == OS.MacOS,
+                    ctrl = hostOs == OS.Windows || hostOs == OS.Linux,
+                    shift = true,
+                    key = Key.T
+                )
+            )
         }
     }
 }
@@ -361,11 +382,45 @@ class AppViewModel {
     var showTopicWindow by mutableStateOf(true)
     val repoTabs = mutableStateListOf<GitHubTopic>()
     val repoWindows = mutableStateListOf<GitHubTopic>()
+    private val closedTabRepos = mutableSetOf<GitHubTopic>()
+    private val closedWindowRepos = mutableSetOf<GitHubTopic>()
+    private var closedWindowType = WindowType.None
     var selected by mutableStateOf(0)
     var refreshKey by mutableStateOf(0)
 
+    private enum class WindowType { Tab, Window, None }
+
+    val canReopen by derivedStateOf { closedTabRepos.isNotEmpty() || closedWindowRepos.isNotEmpty() }
+
+    fun reopenTabOrWindow() {
+        when (closedWindowType) {
+            WindowType.Tab -> {
+                closedTabRepos.lastOrNull()
+                    ?.also(closedTabRepos::remove)
+                    ?.let(repoTabs::add)
+            }
+
+            WindowType.Window -> {
+                closedWindowRepos.lastOrNull()
+                    ?.also(closedWindowRepos::remove)
+                    ?.let(repoWindows::add)
+            }
+
+            WindowType.None -> Unit
+        }
+        when {
+            closedWindowRepos.isEmpty() && closedTabRepos.isEmpty() -> closedWindowType = WindowType.None
+            closedTabRepos.isEmpty() -> closedWindowType = WindowType.Window
+            closedWindowRepos.isEmpty() -> closedWindowType = WindowType.Tab
+        }
+    }
+
     fun closeWindow(topic: GitHubTopic) {
         repoWindows.remove(topic)
+        if (topic !in closedTabRepos && topic !in closedWindowRepos) {
+            closedWindowType = WindowType.Window
+            closedWindowRepos.add(topic)
+        }
     }
 
     fun newTab(topic: GitHubTopic) {
@@ -394,5 +449,9 @@ class AppViewModel {
             else -> selected = 0
         }
         repoTabs.remove(topic)
+        if (topic !in closedTabRepos && topic !in closedWindowRepos) {
+            closedWindowType = WindowType.Tab
+            closedTabRepos.add(topic)
+        }
     }
 }
