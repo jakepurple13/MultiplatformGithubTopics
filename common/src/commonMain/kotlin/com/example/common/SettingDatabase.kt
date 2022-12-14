@@ -102,7 +102,7 @@ class FavoritesDatabase(private val database: Database) {
 
     private val json = Json
 
-    suspend fun flow() = initialDb().asFlow()
+    private suspend fun flow() = initialDb().asFlow()
         .mapNotNull { it.obj }
         .distinctUntilChanged()
 
@@ -119,7 +119,9 @@ class FavoritesDatabase(private val database: Database) {
     }
 
     suspend fun removeFavorite(repo: GitHubTopic) {
-        realm.updateInfo<Favorites> { it?.favoriteRepos?.remove(json.encodeToString(repo)) }
+        realm.updateInfo<Favorites> {
+            it?.favoriteRepos?.removeIf { t -> repo.htmlUrl == json.decodeFromString<GitHubTopic>(t).htmlUrl }
+        }
     }
 }
 
