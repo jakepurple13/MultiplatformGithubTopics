@@ -1,4 +1,6 @@
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.ContextMenuArea
+import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import com.example.common.*
 
@@ -60,11 +63,13 @@ fun HistoryUi(
                     HistoryItem(
                         item = it,
                         favoritesVM = favoritesVM,
-                        onCardClick = {
+                        onCardClick = { topic ->
                             vm.selected++
-                            vm.reopenTab(it)
+                            vm.reopenTab(topic)
                         },
-                        modifier = Modifier.animateItemPlacement()
+                        modifier = Modifier.animateItemPlacement(),
+                        onNewTabClick = vm::newTab,
+                        onOpenNewWindowClick = vm.repoWindows::add
                     )
                 }
                 stickyHeader {
@@ -78,7 +83,9 @@ fun HistoryUi(
                         item = it,
                         favoritesVM = favoritesVM,
                         onCardClick = vm::reopenWindow,
-                        modifier = Modifier.animateItemPlacement()
+                        modifier = Modifier.animateItemPlacement(),
+                        onNewTabClick = vm::newTab,
+                        onOpenNewWindowClick = vm.repoWindows::add
                     )
                 }
             }
@@ -91,16 +98,32 @@ fun HistoryUi(
 fun HistoryItem(
     item: GitHubTopic,
     favoritesVM: FavoritesVM,
+    onNewTabClick: (GitHubTopic) -> Unit,
+    onOpenNewWindowClick: (GitHubTopic) -> Unit,
     onCardClick: (GitHubTopic) -> Unit,
     modifier: Modifier
 ) {
-    TopicItem(
-        item = item,
-        favoritesVM = favoritesVM,
-        savedTopics = emptyList(),
-        currentTopics = emptyList(),
-        onCardClick = onCardClick,
-        onTopicClick = {},
-        modifier = modifier
-    )
+    val actions = LocalAppActions.current
+    val uriHandler = LocalUriHandler.current
+    ContextMenuArea(
+        items = {
+            listOf(
+                ContextMenuItem("Open") { onCardClick(item) },
+                ContextMenuItem("Open in New Tab") { onNewTabClick(item) },
+                ContextMenuItem("Open in New Window") { onOpenNewWindowClick(item) },
+                ContextMenuItem("Open in Browser") { uriHandler.openUri(item.htmlUrl) },
+                ContextMenuItem("Share") { actions.onShareClick(item) },
+            )
+        },
+    ) {
+        TopicItem(
+            item = item,
+            favoritesVM = favoritesVM,
+            savedTopics = emptyList(),
+            currentTopics = emptyList(),
+            onCardClick = onCardClick,
+            onTopicClick = {},
+            modifier = modifier
+        )
+    }
 }
