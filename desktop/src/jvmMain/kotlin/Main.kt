@@ -422,7 +422,7 @@ class AppViewModel {
     }
 
     fun newTabAndOpen(topic: GitHubTopic) {
-        repoTabs.add(topic)
+        newTab(topic)
         selected = repoTabs.indexOf(topic) + 2
     }
 
