@@ -204,12 +204,13 @@ fun TopicItem(
     savedTopics: List<String>,
     currentTopics: List<String>,
     onCardClick: (GitHubTopic) -> Unit,
-    onTopicClick: (String) -> Unit
+    onTopicClick: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val actions = LocalAppActions.current
     OutlinedCard(
         onClick = { onCardClick(item) },
-        modifier = Modifier.padding(horizontal = 4.dp)
+        modifier = modifier.padding(horizontal = 4.dp)
     ) {
         Column(modifier = Modifier.padding(4.dp)) {
             ListItem(

@@ -1,11 +1,13 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Topic
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -87,7 +89,7 @@ fun mains() {
                 },
                 onSettingsClick = { showThemeSelector = true },
                 showLibrariesUsed = { showLibrariesUsed = true },
-                showFavorites = { vm.selectTab(1) }
+                showFavorites = { vm.selectTab(0) }
             )
         ) {
             Tray(
@@ -110,7 +112,7 @@ fun mains() {
                     if (it.type == KeyEventType.KeyDown) {
                         when {
                             it.isMetaPressed && it.key == Key.W && (vm.selected != 0 && vm.selected != 1) -> {
-                                vm.repoTabs.getOrNull(vm.selected - 2)?.let { it1 -> vm.closeTab(it1) }
+                                vm.closeSelectedTab()
                                 true
                             }
 
@@ -143,9 +145,11 @@ fun mains() {
                         previousTab = vm::previousTab,
                         nextTab = vm::nextTab,
                         closeTabEnabled = vm.selected != 0 && vm.selected != 1,
-                        closeTab = { vm.closeTab(vm.repoTabs[vm.selected - 2]) },
+                        closeTab = vm::closeSelectedTab,
                         canReopen = vm.canReopen,
-                        reopen = vm::reopenTabOrWindow
+                        reopen = vm::reopenTabOrWindow,
+                        hasHistory = vm.canReopen,
+                        openHistory = vm::openHistory
                     )
                 }
             ) {
@@ -153,39 +157,63 @@ fun mains() {
                     topBar = {
                         Column {
                             ScrollableTabRow(
-                                selectedTabIndex = vm.selected,
+                                selectedTabIndex = vm.selected.coerceIn(0, vm.browserTab.tabbed.size - 1),
                                 edgePadding = 0.dp
                             ) {
-                                LeadingIconTab(
-                                    selected = vm.selected == 0,
-                                    text = { Text("Favorites") },
-                                    onClick = { vm.selectTab(0) },
-                                    icon = { Icon(Icons.Default.Favorite, null) }
-                                )
+                                vm.browserTab.tabsList.forEach { (index, tab) ->
+                                    when (tab) {
+                                        is Tabs.PinnedTab<TabType> -> {
+                                            when (index) {
+                                                0 -> {
+                                                    LeadingIconTab(
+                                                        selected = vm.selected == 0,
+                                                        text = { Text("Favorites") },
+                                                        onClick = { vm.selectTab(0) },
+                                                        icon = { Icon(Icons.Default.Favorite, null) }
+                                                    )
+                                                }
 
-                                LeadingIconTab(
-                                    selected = vm.selected == 1,
-                                    text = { Text("Topics") },
-                                    onClick = { vm.selectTab(1) },
-                                    icon = { Icon(Icons.Default.Topic, null) }
-                                )
+                                                1 -> {
+                                                    LeadingIconTab(
+                                                        selected = vm.selected == 1,
+                                                        text = { Text("Topics") },
+                                                        onClick = { vm.selectTab(1) },
+                                                        icon = { Icon(Icons.Default.Topic, null) }
+                                                    )
+                                                }
+                                            }
+                                        }
 
-                                vm.repoTabs.forEachIndexed { index, topic ->
-                                    LeadingIconTab(
-                                        selected = vm.selected == index + 2,
-                                        text = { Text(topic.name) },
-                                        onClick = { vm.selectTab(index + 2) },
-                                        modifier = Modifier.onPointerEvent(PointerEventType.Press) {
-                                            val isMiddleClick = it.button == PointerButton.Tertiary
-                                            if (isMiddleClick) vm.closeTab(topic)
-                                        },
-                                        icon = {
-                                            IconsButton(
-                                                onClick = { vm.closeTab(topic) },
-                                                icon = Icons.Default.Close
+                                        is Tabs.Tab<TabType> -> {
+                                            val topic = (tab.data as TabType.Normal).topic
+                                            LeadingIconTab(
+                                                selected = vm.selected == index,
+                                                text = { Text(topic.name) },
+                                                onClick = { vm.selectTab(index) },
+                                                modifier = Modifier.onPointerEvent(PointerEventType.Press) {
+                                                    val isMiddleClick = it.button == PointerButton.Tertiary
+                                                    if (isMiddleClick) vm.closeTab(tab)
+                                                },
+                                                icon = {
+                                                    IconsButton(
+                                                        onClick = { vm.closeTab(tab) },
+                                                        icon = Icons.Default.Close
+                                                    )
+                                                }
                                             )
                                         }
-                                    )
+
+                                        is Tabs.EndTab<TabType> -> {
+                                            AnimatedVisibility(vm.showHistory) {
+                                                LeadingIconTab(
+                                                    selected = vm.selected == vm.browserTab.tabbed.lastIndex,
+                                                    text = { Text("History") },
+                                                    onClick = {},
+                                                    icon = { Icon(Icons.Default.History, null) }
+                                                )
+                                            }
+                                        }
+                                    }
                                 }
                             }
                             Divider(thickness = 2.dp, color = MaterialTheme.colorScheme.outline)
@@ -193,20 +221,35 @@ fun mains() {
                     }
                 ) { p ->
                     Box(modifier = Modifier.padding(p)) {
-                        when (vm.selected) {
-                            0 -> FavoritesUi(favoritesVM) { vm.selectTab(0) }
-                            1 -> App(topicViewModel, favoritesVM)
-                            else -> {
+                        when (val tab = vm.browserTab.selectedTab()) {
+                            is Tabs.PinnedTab<TabType> -> {
+                                when ((tab.data as TabType.Pinned).index) {
+                                    0 -> FavoritesUi(favoritesVM) { vm.selectTab(0) }
+                                    1 -> App(topicViewModel, favoritesVM)
+                                }
+                            }
+
+                            is Tabs.Tab<TabType> -> {
                                 key(vm.selected, vm.refreshKey) {
-                                    vm.repoTabs.getOrNull(vm.selected - 2)?.let { topic ->
+                                    (tab.data as? TabType.Normal)?.topic?.let { topic ->
                                         GithubRepo(
                                             vm = remember { RepoViewModel(Json.encodeToString(topic)) },
                                             favoritesVM = favoritesVM,
-                                            backAction = { vm.closeTab(topic) }
+                                            backAction = { vm.closeTab(tab) }
                                         )
                                     }
                                 }
                             }
+
+                            is Tabs.EndTab<TabType> -> {
+                                HistoryUi(
+                                    vm = vm,
+                                    favoritesVM = favoritesVM,
+                                    backAction = { vm.selectTab(1) }
+                                )
+                            }
+
+                            else -> Unit
                         }
                     }
                 }
@@ -296,7 +339,9 @@ private fun FrameWindowScope.MenuOptions(
     closeTabEnabled: Boolean = false,
     closeTab: () -> Unit = {},
     canReopen: Boolean = false,
-    reopen: () -> Unit = {}
+    reopen: () -> Unit = {},
+    hasHistory: Boolean = false,
+    openHistory: () -> Unit = {}
 ) {
     MenuBar {
         Menu("Settings", mnemonic = 'T') {
@@ -309,6 +354,12 @@ private fun FrameWindowScope.MenuOptions(
             Item(
                 "Settings",
                 onClick = onShowSettings
+            )
+
+            Item(
+                "History",
+                enabled = hasHistory,
+                onClick = openHistory
             )
         }
 
@@ -371,17 +422,40 @@ private fun FrameWindowScope.MenuOptions(
     }
 }
 
+sealed class TabType {
+    class Pinned(val index: Int) : TabType()
+    class Normal(val topic: GitHubTopic) : TabType()
+}
+
 class AppViewModel {
+    val browserTab = BrowserTab<TabType>(1).apply {
+        newPinnedTab(TabType.Pinned(0))
+        newPinnedTab(TabType.Pinned(1))
+        hasEndTab(true)
+    }
     var showTopicWindow by mutableStateOf(true)
-    val repoTabs = mutableStateListOf<GitHubTopic>()
+    var showHistory by mutableStateOf(false)
     val repoWindows = mutableStateListOf<GitHubTopic>()
     private val closedTabRepos = mutableStateListOf<GitHubTopic>()
     private val closedWindowRepos = mutableStateListOf<GitHubTopic>()
     private var closedWindowType = WindowType.None
-    var selected by mutableStateOf(1)
-    var refreshKey by mutableStateOf(0)
+    var selected
+        get() = browserTab.selected
+        set(value) = browserTab.selectTab(value)
+    var refreshKey
+        get() = browserTab.refreshKey
+        set(value) {
+            browserTab.refreshKey = value
+        }
 
-    private enum class WindowType { Tab, Window, None }
+    val closedItems by derivedStateOf {
+        mapOf(
+            WindowType.Tab to closedTabRepos,
+            WindowType.Window to closedWindowRepos
+        )
+    }
+
+    enum class WindowType { Tab, Window, None }
 
     val canReopen by derivedStateOf { closedTabRepos.isNotEmpty() || closedWindowRepos.isNotEmpty() }
 
@@ -390,7 +464,7 @@ class AppViewModel {
             WindowType.Tab -> {
                 closedTabRepos.lastOrNull()
                     ?.also(closedTabRepos::remove)
-                    ?.let(repoTabs::add)
+                    ?.let(::newTab)
             }
 
             WindowType.Window -> {
@@ -408,6 +482,28 @@ class AppViewModel {
         }
     }
 
+    fun reopenTab(topic: GitHubTopic) {
+        closedTabRepos.remove(topic)
+        newTab(topic)
+
+        when {
+            closedWindowRepos.isEmpty() && closedTabRepos.isEmpty() -> closedWindowType = WindowType.None
+            closedTabRepos.isEmpty() -> closedWindowType = WindowType.Window
+            closedWindowRepos.isEmpty() -> closedWindowType = WindowType.Tab
+        }
+    }
+
+    fun reopenWindow(topic: GitHubTopic) {
+        closedWindowRepos.remove(topic)
+        repoWindows.add(topic)
+
+        when {
+            closedWindowRepos.isEmpty() && closedTabRepos.isEmpty() -> closedWindowType = WindowType.None
+            closedTabRepos.isEmpty() -> closedWindowType = WindowType.Window
+            closedWindowRepos.isEmpty() -> closedWindowType = WindowType.Tab
+        }
+    }
+
     fun closeWindow(topic: GitHubTopic) {
         repoWindows.remove(topic)
         if (topic !in closedTabRepos && topic !in closedWindowRepos) {
@@ -417,54 +513,47 @@ class AppViewModel {
     }
 
     fun newTab(topic: GitHubTopic) {
-        if (topic !in repoTabs)
-            repoTabs.add(topic)
+        if (
+            browserTab.tabbed.filterIsInstance<Tabs.Tab<TabType.Normal>>()
+                .none { it.data.topic.htmlUrl == topic.htmlUrl }
+        ) browserTab.newTab(TabType.Normal(topic))
     }
 
     fun newTabAndOpen(topic: GitHubTopic) {
         newTab(topic)
-        selected = repoTabs.indexOf(topic) + 2
     }
 
-    fun closeTab(topic: GitHubTopic) {
-        val index = repoTabs.indexOf(topic) + 2
-        when {
-            index < selected -> selected--
-            index == selected -> {
-                if (repoTabs.size + 1 > selected) {
-                    refreshKey++
-                } else {
-                    selected--
-                }
-            }
-
-            index > selected -> Unit
-            else -> selected = 0
-        }
-        repoTabs.remove(topic)
-        if (topic !in closedTabRepos && topic !in closedWindowRepos) {
+    fun closeTab(topic: Tabs.Tab<TabType>) {
+        browserTab.closeTab(topic)
+        val topicData = (topic.data as TabType.Normal).topic
+        if (topicData !in closedTabRepos && topicData !in closedWindowRepos) {
             closedWindowType = WindowType.Tab
-            closedTabRepos.add(topic)
+            closedTabRepos.add(topicData)
         }
     }
 
     fun nextTab() {
-        if (selected == repoTabs.size + 1) {
-            selected = 0
-        } else {
-            selected++
-        }
+        showHistory = false
+        browserTab.nextTab()
     }
 
     fun previousTab() {
-        if (selected == 0) {
-            selected = repoTabs.size + 1
-        } else {
-            selected--
-        }
+        showHistory = false
+        browserTab.previousTab()
     }
 
     fun selectTab(index: Int) {
-        selected = index
+        showHistory = false
+        browserTab.selectTab(index)
+    }
+
+    fun closeSelectedTab() {
+        val b = browserTab.selectedTab()
+        if (b is Tabs.Tab<TabType>) browserTab.closeTab(b)
+    }
+
+    fun openHistory() {
+        showHistory = true
+        browserTab.selectTab(browserTab.tabbed.lastIndex)
     }
 }
