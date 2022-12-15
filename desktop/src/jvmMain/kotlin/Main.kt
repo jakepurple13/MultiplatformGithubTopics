@@ -158,16 +158,16 @@ fun mains() {
                             ) {
                                 LeadingIconTab(
                                     selected = vm.selected == 0,
-                                    text = { Text("Topics") },
+                                    text = { Text("Favorites") },
                                     onClick = { vm.selectTab(0) },
-                                    icon = { Icon(Icons.Default.Topic, null) }
+                                    icon = { Icon(Icons.Default.Favorite, null) }
                                 )
 
                                 LeadingIconTab(
                                     selected = vm.selected == 1,
-                                    text = { Text("Favorites") },
+                                    text = { Text("Topics") },
                                     onClick = { vm.selectTab(1) },
-                                    icon = { Icon(Icons.Default.Favorite, null) }
+                                    icon = { Icon(Icons.Default.Topic, null) }
                                 )
 
                                 vm.repoTabs.forEachIndexed { index, topic ->
@@ -194,8 +194,8 @@ fun mains() {
                 ) { p ->
                     Box(modifier = Modifier.padding(p)) {
                         when (vm.selected) {
-                            0 -> App(topicViewModel, favoritesVM)
-                            1 -> FavoritesUi(favoritesVM) { vm.selectTab(0) }
+                            0 -> FavoritesUi(favoritesVM) { vm.selectTab(0) }
+                            1 -> App(topicViewModel, favoritesVM)
                             else -> {
                                 key(vm.selected, vm.refreshKey) {
                                     vm.repoTabs.getOrNull(vm.selected - 2)?.let { topic ->
@@ -378,7 +378,7 @@ class AppViewModel {
     private val closedTabRepos = mutableStateListOf<GitHubTopic>()
     private val closedWindowRepos = mutableStateListOf<GitHubTopic>()
     private var closedWindowType = WindowType.None
-    var selected by mutableStateOf(0)
+    var selected by mutableStateOf(1)
     var refreshKey by mutableStateOf(0)
 
     private enum class WindowType { Tab, Window, None }
