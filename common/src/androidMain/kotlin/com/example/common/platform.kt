@@ -10,6 +10,7 @@ import androidx.annotation.IdRes
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.icons.Icons
@@ -154,6 +155,15 @@ actual fun SwipeRefreshWrapper(
 
 @Composable
 actual fun BoxScope.LoadingIndicator(vm: BaseTopicVM) {
+}
+
+@Composable
+actual fun RowScope.RepoViewToggle(repoVM: RepoVM) {
+}
+
+@Composable
+actual fun RepoContentView(repoVM: RepoVM, modifier: Modifier, defaultContent: @Composable () -> Unit) {
+    defaultContent()
 }
 
 @Composable

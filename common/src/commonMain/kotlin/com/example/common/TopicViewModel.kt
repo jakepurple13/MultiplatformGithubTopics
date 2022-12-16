@@ -68,6 +68,7 @@ class BaseRepoViewModel(
     override val item by lazy { Json.decodeFromString<GitHubTopic>(topic) }
     override var repoContent by mutableStateOf<ReadMeResponse>(ReadMeResponse.Loading)
     override var error by mutableStateOf(false)
+    override var showWebView by mutableStateOf(false)
 
     override suspend fun load() {
         val cached = Cached.cache[item.htmlUrl]
@@ -94,6 +95,7 @@ interface RepoVM {
     val item: GitHubTopic
     var repoContent: ReadMeResponse
     var error: Boolean
+    var showWebView: Boolean
     suspend fun load()
 }
 

@@ -3,6 +3,7 @@ package com.example.common
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -47,3 +48,9 @@ expect fun MarkdownText(text: String, modifier: Modifier = Modifier)
 
 @Composable
 expect fun LibraryContainer(modifier: Modifier = Modifier)
+
+@Composable
+expect fun RowScope.RepoViewToggle(repoVM: RepoVM)
+
+@Composable
+expect fun RepoContentView(repoVM: RepoVM, modifier: Modifier, defaultContent: @Composable () -> Unit)

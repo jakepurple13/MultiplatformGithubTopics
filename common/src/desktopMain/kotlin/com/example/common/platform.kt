@@ -1,11 +1,13 @@
 package com.example.common
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -155,6 +157,55 @@ actual fun MarkdownText(text: String, modifier: Modifier) {
     )
 }
 
+@Composable
+actual fun RowScope.RepoViewToggle(repoVM: RepoVM) {
+    NavigationBarItem(
+        selected = repoVM.showWebView,
+        onClick = { repoVM.showWebView = !repoVM.showWebView },
+        icon = {
+            Icon(
+                if (repoVM.showWebView) Icons.Default.WebAsset else Icons.Default.WebAssetOff,
+                null
+            )
+        },
+        label = { Text("Show WebView") }
+    )
+
+    AnimatedVisibility(
+        repoVM.showWebView,
+        modifier = Modifier.weight(1f)
+    ) {
+        val browser = (repoVM as RepoViewModel).browser
+        Row {
+            NavigationBarItem(
+                selected = false,
+                onClick = { browser.goBack() },
+                icon = { Icon(Icons.Default.ArrowCircleLeft, null) },
+                label = { Text("Back") },
+                enabled = repoVM.showWebView
+            )
+
+            NavigationBarItem(
+                selected = false,
+                onClick = { browser.goForward() },
+                icon = { Icon(Icons.Default.ArrowCircleRight, null) },
+                label = { Text("Forward") },
+                enabled = repoVM.showWebView
+            )
+        }
+    }
+}
+
+@Composable
+actual fun RepoContentView(repoVM: RepoVM, modifier: Modifier, defaultContent: @Composable () -> Unit) {
+    Crossfade(repoVM.showWebView) { target ->
+        when (target) {
+            true -> WebView((repoVM as RepoViewModel).browser.uiComponent, modifier)
+            false -> defaultContent()
+        }
+    }
+}
+
 class TopicViewModel(private val viewModelScope: CoroutineScope, s: Flow<SettingInformation>) :
     BaseTopicVM by BaseTopicViewModel() {
 
@@ -218,7 +269,9 @@ class TopicViewModel(private val viewModelScope: CoroutineScope, s: Flow<Setting
     }
 }
 
-class RepoViewModel(t: String) : RepoVM by BaseRepoViewModel(t)
+class RepoViewModel(t: String, browserHandler: BrowserHandler) : RepoVM by BaseRepoViewModel(t) {
+    val browser by lazy { browserHandler.createBrowser(item.htmlUrl) }
+}
 
 class FavoritesViewModel(
     private val viewModelScope: CoroutineScope,

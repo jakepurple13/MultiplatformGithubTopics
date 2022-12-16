@@ -72,6 +72,7 @@ fun mains() {
         val canCloseOnExit by closeOnExit.collectAsState(false)
         val snackbarHostState = remember { SnackbarHostState() }
         var showLibrariesUsed by remember { mutableStateOf(false) }
+        val browserHandler = LocalBrowserHandler.current
 
         Theme(
             themeColors = themeColors,
@@ -233,7 +234,7 @@ fun mains() {
                                 key(vm.selected, vm.refreshKey) {
                                     (tab.data as? TabType.Normal)?.topic?.let { topic ->
                                         GithubRepo(
-                                            vm = remember { RepoViewModel(Json.encodeToString(topic)) },
+                                            vm = remember { RepoViewModel(Json.encodeToString(topic), browserHandler) },
                                             favoritesVM = favoritesVM,
                                             backAction = { vm.closeTab(tab) }
                                         )
@@ -282,7 +283,7 @@ fun mains() {
                         }
                     ) {
                         GithubRepo(
-                            vm = remember { RepoViewModel(Json.encodeToString(topic)) },
+                            vm = remember { RepoViewModel(Json.encodeToString(topic), browserHandler) },
                             favoritesVM = favoritesVM,
                             backAction = { vm.closeWindow(topic) }
                         )

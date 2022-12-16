@@ -450,6 +450,8 @@ fun GithubRepo(
                         onClick = { uriHandler.openUri(vm.item.htmlUrl) })
                 },
                 icons = {
+                    RepoViewToggle(repoVM = vm)
+
                     NavigationBarItem(
                         selected = false,
                         onClick = { appActions.onShareClick(vm.item) },
@@ -494,15 +496,23 @@ fun GithubRepo(
                 }
 
                 is ReadMeResponse.Success -> {
-                    Column(
+                    RepoContentView(
+                        repoVM = vm,
                         modifier = Modifier
+                            .fillMaxSize()
                             .padding(padding)
-                            .verticalScroll(rememberScrollState())
+                            .padding(4.dp)
                     ) {
-                        MarkdownText(
-                            text = content.content,
-                            modifier = Modifier.padding(4.dp)
-                        )
+                        Column(
+                            modifier = Modifier
+                                .padding(padding)
+                                .verticalScroll(rememberScrollState())
+                        ) {
+                            MarkdownText(
+                                text = content.content,
+                                modifier = Modifier.padding(4.dp)
+                            )
+                        }
                     }
                 }
             }
