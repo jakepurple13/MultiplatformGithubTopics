@@ -29,6 +29,17 @@ kotlin {
 
 compose.desktop {
     application {
+        args += listOf(
+            "--add-opens java.desktop/sun.awt=ALL-UNNAMED",
+            "--add-opens java.desktop/sun.lwawt=ALL-UNNAMED",
+            "--add-opens java.desktop/sun.lwawt.macosx=ALL-UNNAMED"
+        )
+
+        jvmArgs += listOf(
+            "--add-opens java.desktop/sun.awt=ALL-UNNAMED",
+            "--add-opens java.desktop/sun.lwawt=ALL-UNNAMED",
+            "--add-opens java.desktop/sun.lwawt.macosx=ALL-UNNAMED"
+        )
         mainClass = "StartKt"
         nativeDistributions {
             includeAllModules = true
@@ -38,18 +49,15 @@ compose.desktop {
             appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))
             fun iconFile(extension: String) = project.file("src/jvmMain/resources/logo.$extension")
             macOS {
-                val icon = iconFile("icns")
-                iconFile.set(icon)
+                iconFile.set(iconFile("icns"))
             }
             windows {
-                val icon = iconFile("ico")
-                iconFile.set(icon)
+                iconFile.set(iconFile("ico"))
                 dirChooser = true
                 console = true
             }
             linux {
-                val icon = iconFile("png")
-                iconFile.set(icon)
+                iconFile.set(iconFile("png"))
             }
         }
     }
@@ -58,8 +66,12 @@ compose.desktop {
 tasks.register("BuildAboutLibraries") {
     doFirst {
         exec {
-            workingDir(projectDir)
-            commandLine("./gradlew desktop:exportLibraryDefinitions -PaboutLibraries.exportPath=src/jvmMain/resources/")
+            workingDir(projectDir.parentFile)
+            commandLine(
+                "./gradlew",
+                "desktop:exportLibraryDefinitions",
+                "-PaboutLibraries.exportPath=src/jvmMain/resources/"
+            )
         }
     }
 }

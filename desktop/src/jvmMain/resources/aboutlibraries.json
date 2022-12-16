@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated": "2022-12-16T14:24:12.841Z"
+    "generated": "2022-12-16T20:11:12.32Z"
   },
   "libraries": [
     {
@@ -460,7 +460,7 @@
           "name": "Ali Albaali"
         }
       ],
-      "artifactVersion": "0.4.0",
+      "artifactVersion": "0.4.1",
       "description": "Kotlin Asynchronous Media Loading Library that supports Compose",
       "scm": {
         "connection": "scm:git:github.com/alialbaali/Kamel.git",
@@ -481,7 +481,7 @@
           "name": "Ali Albaali"
         }
       ],
-      "artifactVersion": "0.4.0",
+      "artifactVersion": "0.4.1",
       "description": "Kotlin Asynchronous Media Loading Library that supports Compose",
       "scm": {
         "connection": "scm:git:github.com/alialbaali/Kamel.git",

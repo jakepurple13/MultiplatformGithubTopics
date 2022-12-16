@@ -53,7 +53,6 @@ class BrowserHandler {
         //Configure the builder instance
         builder.setInstallDir(File("jcef-bundle")) //Default
         builder.setProgressHandler(ConsoleProgressHandler()) //Default
-        builder.addJcefArgs("--disable-gpu") //Just an example
         builder.cefSettings.windowless_rendering_enabled = true //Default - select OSR mode
         builder.addJcefArgs("--force-dark-mode")
 
