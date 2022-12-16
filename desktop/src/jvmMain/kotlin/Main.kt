@@ -233,11 +233,17 @@ fun mains() {
                             is Tabs.Tab<TabType> -> {
                                 key(vm.selected, vm.refreshKey) {
                                     (tab.data as? TabType.Normal)?.topic?.let { topic ->
+                                        val repo = remember {
+                                            RepoViewModel(Json.encodeToString(topic), browserHandler)
+                                        }
                                         GithubRepo(
-                                            vm = remember { RepoViewModel(Json.encodeToString(topic), browserHandler) },
+                                            vm = repo,
                                             favoritesVM = favoritesVM,
                                             backAction = { vm.closeTab(tab) }
                                         )
+                                        DisposableEffect(Unit) {
+                                            onDispose { repo.browser.close(true) }
+                                        }
                                     }
                                 }
                             }
@@ -282,11 +288,16 @@ fun mains() {
                             )
                         }
                     ) {
+                        val repo = remember { RepoViewModel(Json.encodeToString(topic), browserHandler) }
                         GithubRepo(
-                            vm = remember { RepoViewModel(Json.encodeToString(topic), browserHandler) },
+                            vm = repo,
                             favoritesVM = favoritesVM,
                             backAction = { vm.closeWindow(topic) }
                         )
+
+                        DisposableEffect(Unit) {
+                            onDispose { repo.browser.close(true) }
+                        }
                     }
                 }
             }
