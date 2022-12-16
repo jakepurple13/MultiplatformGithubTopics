@@ -231,7 +231,7 @@ fun mains() {
                             }
 
                             is Tabs.Tab<TabType> -> {
-                                key(vm.selected, vm.refreshKey) {
+                                key(vm.selected, vm.browserTab.refreshKey) {
                                     (tab.data as? TabType.Normal)?.topic?.let { topic ->
                                         val repo = remember {
                                             RepoViewModel(Json.encodeToString(topic), browserHandler)
@@ -454,11 +454,6 @@ class AppViewModel {
     var selected
         get() = browserTab.selected
         set(value) = browserTab.selectTab(value)
-    var refreshKey
-        get() = browserTab.refreshKey
-        set(value) {
-            browserTab.refreshKey = value
-        }
 
     val closedItems by derivedStateOf {
         mapOf(
