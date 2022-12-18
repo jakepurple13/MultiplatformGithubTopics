@@ -26,6 +26,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.common.*
 import com.fragula2.compose.FragulaNavHost
+import com.fragula2.compose.rememberSwipeBackNavigator
 import com.fragula2.compose.swipeable
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
@@ -48,7 +49,8 @@ class MainActivity : ComponentActivity() {
             val vm: AppViewModel = viewModel { AppViewModel(db) }
             val favoritesVM: FavoritesViewModel = viewModel { FavoritesViewModel(db) }
             val bottomSheetNavigator = rememberBottomSheetNavigator()
-            val navController = rememberNavController(bottomSheetNavigator)
+            val swipableNavigator = rememberSwipeBackNavigator()
+            val navController = rememberNavController(bottomSheetNavigator, swipableNavigator)
             val scope = rememberCoroutineScope()
             val topicDrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
             Theme(
