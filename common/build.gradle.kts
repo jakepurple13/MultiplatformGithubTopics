@@ -93,7 +93,7 @@ kotlin {
                 api(compose.preview)
                 api(compose.desktop.components.splitPane)
                 api("org.jetbrains.kotlinx:kotlinx-html-jvm:0.8.0")
-                api("me.friwi:jcefmaven:107.1.9.1")
+                api("me.friwi:jcefmaven:108.4.13")
             }
         }
         val desktopTest by getting
