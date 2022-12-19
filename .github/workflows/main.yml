@@ -67,7 +67,7 @@ jobs:
 
       - name: Gradle Build
         id: gradle-build
-        run: ./gradlew packageUberJarForCurrentOS
+        run: ./gradlew packageReleaseUberJarForCurrentOS
 
       - name: Build Release App
         run: ./gradlew packageDistributionForCurrentOS
