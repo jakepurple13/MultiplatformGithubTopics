@@ -70,7 +70,8 @@ jobs:
         run: ./gradlew packageUberJarForCurrentOS
 
       - name: Build Release App
-        run: ./gradlew packageUberJarForCurrentOS
+        run: ./gradlew packageDistributionForCurrentOS
+
       - name: Archive Artifacts
         uses: actions/upload-artifact@v3
         with:
