@@ -1,6 +1,9 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -13,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -187,6 +191,8 @@ fun mains() {
 
                                         is Tabs.Tab<TabType> -> {
                                             val topic = (tab.data as TabType.Normal).topic
+                                            val hoverInteraction = remember { MutableInteractionSource() }
+                                            val isHovering by hoverInteraction.collectIsHoveredAsState()
                                             LeadingIconTab(
                                                 selected = vm.selected == index,
                                                 text = { Text(topic.name) },
@@ -198,7 +204,12 @@ fun mains() {
                                                 icon = {
                                                     IconsButton(
                                                         onClick = { vm.closeTab(tab) },
-                                                        icon = Icons.Default.Close
+                                                        icon = Icons.Default.Close,
+                                                        modifier = Modifier.hoverable(hoverInteraction),
+                                                        colors = IconButtonDefaults.iconButtonColors(
+                                                            contentColor = if (isHovering) Color.Red
+                                                            else LocalContentColor.current
+                                                        )
                                                     )
                                                 }
                                             )
