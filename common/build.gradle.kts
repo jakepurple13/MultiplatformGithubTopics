@@ -59,7 +59,7 @@ kotlin {
                 api("com.google.accompanist:accompanist-flowlayout:0.28.0")
                 api("com.google.accompanist:accompanist-navigation-material:0.28.0")
                 api("androidx.navigation:navigation-compose:2.5.3")
-                api("com.google.accompanist:accompanist-swiperefresh:0.27.0")
+                api("com.google.accompanist:accompanist-swiperefresh:0.28.0")
                 api("com.fragula2:fragula-compose:2.4.1")
 
                 val markwonVersion = "4.6.2"
