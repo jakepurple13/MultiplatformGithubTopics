@@ -8,18 +8,21 @@ import android.widget.TextView
 import androidx.annotation.FontRes
 import androidx.annotation.IdRes
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
@@ -37,8 +40,6 @@ import coil.ImageLoader
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import com.google.accompanist.flowlayout.FlowRow
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.mikepenz.aboutlibraries.ui.compose.LibrariesContainer
 import com.mikepenz.aboutlibraries.ui.compose.LibraryDefaults
 import io.noties.markwon.Markwon
@@ -137,6 +138,7 @@ actual fun ChipLayout(modifier: Modifier, content: @Composable () -> Unit) {
     FlowRow(modifier, content = content)
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 actual fun SwipeRefreshWrapper(
     paddingValues: PaddingValues,
@@ -145,12 +147,20 @@ actual fun SwipeRefreshWrapper(
     content: @Composable () -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    SwipeRefresh(
-        state = rememberSwipeRefreshState(isRefreshing),
-        onRefresh = { scope.launch { onRefresh() } },
-        indicatorPadding = paddingValues,
-        content = content
-    )
+    val pullRefreshState = rememberPullRefreshState(isRefreshing, onRefresh = { scope.launch { onRefresh() } })
+    Box(modifier = Modifier.pullRefresh(pullRefreshState)) {
+        content()
+        PullRefreshIndicator(
+            refreshing = isRefreshing,
+            state = pullRefreshState,
+            modifier = Modifier
+                .padding(paddingValues)
+                .align(Alignment.TopCenter),
+            backgroundColor = MaterialTheme.colorScheme.surface,
+            contentColor = contentColorFor(MaterialTheme.colorScheme.surface),
+            scale = true
+        )
+    }
 }
 
 @Composable

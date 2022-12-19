@@ -38,7 +38,7 @@ kotlin {
                 api("org.ocpsoft.prettytime:prettytime:5.0.2.Final")
                 api("com.alialbaali.kamel:kamel-image:0.4.1")
                 api("com.mikepenz:multiplatform-markdown-renderer:0.6.1")
-                api("io.realm.kotlin:library-base:1.4.0")
+                api("io.realm.kotlin:library-base:1.5.1")
                 api("com.mikepenz:aboutlibraries-core:10.5.2")
                 api("com.mikepenz:aboutlibraries-compose:10.5.2")
             }
@@ -59,7 +59,6 @@ kotlin {
                 api("com.google.accompanist:accompanist-flowlayout:0.28.0")
                 api("com.google.accompanist:accompanist-navigation-material:0.28.0")
                 api("androidx.navigation:navigation-compose:2.5.3")
-                api("com.google.accompanist:accompanist-swiperefresh:0.27.0")
                 api("com.fragula2:fragula-compose:2.4.1")
 
                 val markwonVersion = "4.6.2"
@@ -93,7 +92,7 @@ kotlin {
                 api(compose.preview)
                 api(compose.desktop.components.splitPane)
                 api("org.jetbrains.kotlinx:kotlinx-html-jvm:0.8.0")
-                api("me.friwi:jcefmaven:107.1.9.1")
+                api("me.friwi:jcefmaven:108.4.13")
             }
         }
         val desktopTest by getting
