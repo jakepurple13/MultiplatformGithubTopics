@@ -94,7 +94,7 @@ interface GenericCache<K, V> {
 
 /**
  * [ExpirableLRUCache] flushes items that are **Least Recently Used** and keeps [minimalSize] items at most
- * along with flushing the items whose life time is longer than [flushInterval].
+ * along with flushing the items whose lifetime is longer than [flushInterval].
  */
 class ExpirableLRUCache<K, V>(
     private val minimalSize: Int = DEFAULT_SIZE,

@@ -9,7 +9,6 @@ import io.realm.kotlin.migration.AutomaticSchemaMigration
 import io.realm.kotlin.types.RealmList
 import io.realm.kotlin.types.RealmObject
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.serialization.decodeFromString
@@ -34,12 +33,6 @@ class Database {
                 .build()
         )
     }
-
-    val settingsInfo
-        get() = realm.query(SettingInformation::class)
-            .first()
-            .asFlow()
-            .filterNotNull()
 
     suspend fun setCurrentTopic(topic: String) {
         if (topic.isNotEmpty()) {
@@ -107,7 +100,7 @@ class FavoritesDatabase(private val database: Database) {
         .distinctUntilChanged()
 
     suspend fun favoriteRepos() = flow()
-        .map { it.favoriteRepos.map { json.decodeFromString<GitHubTopic>(it) } }
+        .map { fav -> fav.favoriteRepos.map { json.decodeFromString<GitHubTopic>(it) } }
 
     private suspend fun initialDb(): Favorites {
         val f = realm.query(Favorites::class).first().find()

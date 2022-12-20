@@ -28,6 +28,7 @@ import androidx.compose.ui.window.MenuBar
 import androidx.compose.ui.window.Tray
 import androidx.compose.ui.window.application
 import com.example.common.*
+import com.example.common.components.IconsButton
 import com.example.common.screens.*
 import io.realm.kotlin.ext.asFlow
 import kotlinx.coroutines.flow.distinctUntilChanged

@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.common.*
+import com.example.common.components.IconsButton
 import com.example.common.viewmodels.FavoritesVM
 import com.example.common.viewmodels.RepoVM
 

@@ -13,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import com.example.common.*
+import com.example.common.components.IconsButton
+import com.example.common.components.TopicItem
 import com.example.common.viewmodels.FavoritesVM
 
 @OptIn(ExperimentalMaterial3Api::class)

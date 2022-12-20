@@ -1,4 +1,4 @@
-package com.example.common
+package com.example.common.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Row
