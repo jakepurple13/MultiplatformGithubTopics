@@ -39,6 +39,9 @@ import androidx.lifecycle.viewModelScope
 import coil.ImageLoader
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
+import com.example.common.screens.GithubTopicUI
+import com.example.common.screens.TopicDrawer
+import com.example.common.viewmodels.*
 import com.google.accompanist.flowlayout.FlowRow
 import com.mikepenz.aboutlibraries.ui.compose.LibrariesContainer
 import com.mikepenz.aboutlibraries.ui.compose.LibraryDefaults

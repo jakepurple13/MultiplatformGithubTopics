@@ -1,4 +1,4 @@
-package com.example.common
+package com.example.common.screens
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.*
@@ -14,6 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.common.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

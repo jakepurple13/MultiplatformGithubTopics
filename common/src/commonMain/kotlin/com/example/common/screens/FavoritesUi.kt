@@ -1,4 +1,4 @@
-package com.example.common
+package com.example.common.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,6 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
+import com.example.common.*
+import com.example.common.viewmodels.FavoritesVM
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -25,6 +25,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.common.*
+import com.example.common.screens.*
 import com.fragula2.compose.FragulaNavHost
 import com.fragula2.compose.rememberSwipeBackNavigator
 import com.fragula2.compose.swipeable

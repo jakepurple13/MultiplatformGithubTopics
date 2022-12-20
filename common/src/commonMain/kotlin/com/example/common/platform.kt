@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.example.common.viewmodels.BaseTopicVM
+import com.example.common.viewmodels.FavoritesVM
+import com.example.common.viewmodels.RepoVM
 
 expect fun getPlatformName(): String
 
