@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
@@ -126,39 +127,27 @@ fun ApplicationScope.LinuxTopBar(state: WindowState, onExit: () -> Unit, windowT
         ) {
             val hoverInteraction = remember { MutableInteractionSource() }
             val isHovering by hoverInteraction.collectIsHoveredAsState()
-            IconButton(
-                onClick = onExit,
-                modifier = Modifier.hoverable(hoverInteraction)
-            ) {
-                Icon(
-                    Icons.Default.Close,
-                    null,
-                    tint = animateColorAsState(if (isHovering) Color.Red else LocalContentColor.current).value
-                )
-            }
-            IconButton(
-                onClick = { state.isMinimized = !state.isMinimized },
-                modifier = Modifier.hoverable(hoverInteraction)
-            ) {
-                Icon(
-                    Icons.Default.Minimize,
-                    null,
-                    tint = animateColorAsState(if (isHovering) Color.Yellow else LocalContentColor.current).value
-                )
-            }
-            IconButton(
-                onClick = {
+
+            val modifier = Modifier
+                .weight(1f, false)
+                .width(60.dp)
+                .hoverable(hoverInteraction)
+
+            CloseButton(onExit, modifier, isHovering)
+
+            MinimizeButton(
+                onMinimize = { state.isMinimized = !state.isMinimized },
+                modifier, isHovering
+            )
+
+            MaximizeButton(
+                onMaximize = {
                     state.placement = if (state.placement != WindowPlacement.Maximized) WindowPlacement.Maximized
                     else WindowPlacement.Floating
                 },
-                modifier = Modifier.hoverable(hoverInteraction)
-            ) {
-                Icon(
-                    Icons.Default.Maximize,
-                    null,
-                    tint = animateColorAsState(if (isHovering) Color.Green else LocalContentColor.current).value
-                )
-            }
+                icon = Icons.Default.Maximize,
+                modifier, isHovering
+            )
         }
 
         Text(
@@ -177,39 +166,26 @@ fun ApplicationScope.WindowsTopBar(state: WindowState, onExit: () -> Unit, windo
         ) {
             val hoverInteraction = remember { MutableInteractionSource() }
             val isHovering by hoverInteraction.collectIsHoveredAsState()
-            IconButton(
-                onClick = onExit,
-                modifier = Modifier.hoverable(hoverInteraction)
-            ) {
-                Icon(
-                    Icons.Default.Close,
-                    null,
-                    tint = animateColorAsState(if (isHovering) Color.Red else LocalContentColor.current).value
-                )
-            }
-            IconButton(
-                onClick = { state.isMinimized = !state.isMinimized },
-                modifier = Modifier.hoverable(hoverInteraction)
-            ) {
-                Icon(
-                    Icons.Default.Minimize,
-                    null,
-                    tint = animateColorAsState(if (isHovering) Color.Yellow else LocalContentColor.current).value
-                )
-            }
-            IconButton(
-                onClick = {
+            val modifier = Modifier
+                .weight(1f, false)
+                .width(60.dp)
+                .hoverable(hoverInteraction)
+
+            CloseButton(onExit, modifier, isHovering)
+
+            MinimizeButton(
+                onMinimize = { state.isMinimized = !state.isMinimized },
+                modifier, isHovering
+            )
+
+            MaximizeButton(
+                onMaximize = {
                     state.placement = if (state.placement != WindowPlacement.Maximized) WindowPlacement.Maximized
                     else WindowPlacement.Floating
                 },
-                modifier = Modifier.hoverable(hoverInteraction)
-            ) {
-                Icon(
-                    Icons.Default.Maximize,
-                    null,
-                    tint = animateColorAsState(if (isHovering) Color.Green else LocalContentColor.current).value
-                )
-            }
+                icon = Icons.Default.Maximize,
+                modifier, isHovering
+            )
         }
 
         Text(
@@ -228,39 +204,26 @@ fun ApplicationScope.MacOsTopBar(state: WindowState, onExit: () -> Unit, windowT
         ) {
             val hoverInteraction = remember { MutableInteractionSource() }
             val isHovering by hoverInteraction.collectIsHoveredAsState()
-            IconButton(
-                onClick = onExit,
-                modifier = Modifier.hoverable(hoverInteraction)
-            ) {
-                Icon(
-                    Icons.Default.Close,
-                    null,
-                    tint = animateColorAsState(if (isHovering) Color.Red else LocalContentColor.current).value
-                )
-            }
-            IconButton(
-                onClick = { state.isMinimized = !state.isMinimized },
-                modifier = Modifier.hoverable(hoverInteraction)
-            ) {
-                Icon(
-                    Icons.Default.Minimize,
-                    null,
-                    tint = animateColorAsState(if (isHovering) Color.Yellow else LocalContentColor.current).value
-                )
-            }
-            IconButton(
-                onClick = {
+            val modifier = Modifier
+                .weight(1f, false)
+                .width(60.dp)
+                .hoverable(hoverInteraction)
+
+            CloseButton(onExit, modifier, isHovering)
+
+            MinimizeButton(
+                onMinimize = { state.isMinimized = !state.isMinimized },
+                modifier, isHovering
+            )
+
+            MaximizeButton(
+                onMaximize = {
                     state.placement = if (state.placement != WindowPlacement.Fullscreen) WindowPlacement.Fullscreen
                     else WindowPlacement.Floating
                 },
-                modifier = Modifier.hoverable(hoverInteraction)
-            ) {
-                Icon(
-                    if (state.placement != WindowPlacement.Fullscreen) Icons.Default.Fullscreen else Icons.Default.FullscreenExit,
-                    null,
-                    tint = animateColorAsState(if (isHovering) Color.Green else LocalContentColor.current).value
-                )
-            }
+                icon = if (state.placement != WindowPlacement.Fullscreen) Icons.Default.Fullscreen else Icons.Default.FullscreenExit,
+                modifier, isHovering
+            )
         }
 
         Text(
@@ -268,4 +231,83 @@ fun ApplicationScope.MacOsTopBar(state: WindowState, onExit: () -> Unit, windowT
             modifier = Modifier.align(Alignment.Center),
         )
     }
+}
+
+@Composable
+private fun RowScope.CloseButton(
+    onExit: () -> Unit,
+    modifier: Modifier,
+    isHovering: Boolean
+) {
+    NavigationBarItem(
+        selected = false,
+        onClick = onExit,
+        modifier = modifier,
+        icon = {
+            Icon(
+                Icons.Default.Close,
+                null,
+                tint = animateColorAsState(if (isHovering) Color.Red else LocalContentColor.current).value
+            )
+        },
+        alwaysShowLabel = false,
+        colors = NavigationBarItemDefaults.colors(
+            selectedIconColor = Color.Red,
+            unselectedIconColor = LocalContentColor.current,
+            indicatorColor = Color.Red.copy(alpha = .5f)
+        ),
+    )
+}
+
+@Composable
+private fun RowScope.MinimizeButton(
+    onMinimize: () -> Unit,
+    modifier: Modifier,
+    isHovering: Boolean
+) {
+    NavigationBarItem(
+        selected = false,
+        onClick = onMinimize,
+        modifier = modifier,
+        icon = {
+            Icon(
+                Icons.Default.Minimize,
+                null,
+                tint = animateColorAsState(if (isHovering) Color.Yellow else LocalContentColor.current).value
+            )
+        },
+        alwaysShowLabel = false,
+        colors = NavigationBarItemDefaults.colors(
+            selectedIconColor = Color.Yellow,
+            unselectedIconColor = LocalContentColor.current,
+            indicatorColor = Color.Yellow.copy(alpha = .5f)
+        ),
+    )
+}
+
+@Composable
+private fun RowScope.MaximizeButton(
+    onMaximize: () -> Unit,
+    icon: ImageVector,
+    modifier: Modifier,
+    isHovering: Boolean
+) {
+    NavigationBarItem(
+        selected = false,
+        onClick = onMaximize,
+        modifier = modifier,
+        icon = {
+            Icon(
+                icon,
+                null,
+                tint = animateColorAsState(if (isHovering) Color.Green else LocalContentColor.current).value
+            )
+        },
+        alwaysShowLabel = false,
+        colors = NavigationBarItemDefaults.colors(
+            selectedIconColor = Color.Green,
+            unselectedIconColor = LocalContentColor.current,
+            indicatorColor = Color.Green.copy(alpha = .5f)
+        ),
+    )
 }
