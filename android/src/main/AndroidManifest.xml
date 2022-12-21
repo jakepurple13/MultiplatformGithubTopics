@@ -8,7 +8,7 @@
             android:label="GitHub Topics"
             android:allowBackup="false"
             android:supportsRtl="true"
-            android:icon="@drawable/logo"
+            android:icon="@mipmap/ic_launcher"
             android:enableOnBackInvokedCallback="true"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             tools:targetApi="tiramisu">

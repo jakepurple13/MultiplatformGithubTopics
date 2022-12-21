@@ -30,6 +30,7 @@ import androidx.compose.ui.window.application
 import com.example.common.*
 import com.example.common.components.IconsButton
 import com.example.common.screens.*
+import com.jthemedetecor.OsThemeDetector
 import io.realm.kotlin.ext.asFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -46,6 +47,7 @@ import java.awt.datatransfer.StringSelection
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 fun mains() {
+    val osThemeDetector = OsThemeDetector.getDetector()
     val db = Database()
     val info = runBlocking {
         val f = db.realm.query(SettingInformation::class).first().find()
@@ -74,7 +76,7 @@ fun mains() {
         val topicViewModel = remember { TopicViewModel(scope, s) }
         var showThemeSelector by remember { mutableStateOf(false) }
         val themeColors by currentThemes.collectAsState(ThemeColors.Default)
-        val isDarkMode by isDarkModes.collectAsState(true)
+        val isDarkMode by isDarkModes.collectAsState(osThemeDetector.isDark)
         val canCloseOnExit by closeOnExit.collectAsState(false)
         val snackbarHostState = remember { SnackbarHostState() }
         var showLibrariesUsed by remember { mutableStateOf(false) }
@@ -100,7 +102,10 @@ fun mains() {
             )
         ) {
             Tray(
-                icon = painterResource("logo.png"),
+                icon = painterResource(
+                    if (osThemeDetector.isDark) "github_mark_logo_light.png"
+                    else "github_mark_logo.png"
+                ),
                 onAction = { vm.showTopicWindow = true },
                 menu = {
                     if (!canCloseOnExit) Item("Open Window", onClick = { vm.showTopicWindow = true })
