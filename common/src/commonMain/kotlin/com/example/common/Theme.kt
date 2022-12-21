@@ -28,8 +28,9 @@ fun Theme(
             CompositionLocalProvider(
                 LocalAppActions provides appActions,
                 LocalThemeSpacing provides remember { Spacing() },
-                LocalMainScrollState provides rememberLazyListState()
-            ) { content() }
+                LocalMainScrollState provides rememberLazyListState(),
+                content = content
+            )
         }
     }
 }

@@ -32,7 +32,6 @@ import org.jetbrains.compose.splitpane.HorizontalSplitPane
 import org.jetbrains.compose.splitpane.rememberSplitPaneState
 import java.awt.Cursor
 
-
 actual fun getPlatformName(): String {
     return "Desktop"
 }

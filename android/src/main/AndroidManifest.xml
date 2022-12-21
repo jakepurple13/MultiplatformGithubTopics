@@ -5,12 +5,13 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <application
-        android:label="GitHub Topics"
-        android:allowBackup="false"
-        android:supportsRtl="true"
-        android:enableOnBackInvokedCallback="true"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-        tools:targetApi="tiramisu">
+            android:label="GitHub Topics"
+            android:allowBackup="false"
+            android:supportsRtl="true"
+            android:icon="@drawable/logo"
+            android:enableOnBackInvokedCallback="true"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            tools:targetApi="tiramisu">
         <activity
             android:name=".MainActivity"
             android:exported="true">
