@@ -21,7 +21,11 @@ kotlin {
             kotlinOptions.jvmTarget = "11"
         }
     }
+    /*js(IR) {
+        browser()
+    }*/
     sourceSets {
+        val ktorVersion = extra["ktor.version"] as String
         val commonMain by getting {
             dependencies {
                 api(compose.runtime)
@@ -29,7 +33,6 @@ kotlin {
                 api(compose.material3)
                 api(compose.material)
                 api(compose.materialIconsExtended)
-                val ktorVersion = extra["ktor.version"] as String
                 api("io.ktor:ktor-client-core:$ktorVersion")
                 api("io.ktor:ktor-client-cio:$ktorVersion")
                 api("io.ktor:ktor-client-content-negotiation:$ktorVersion")
@@ -97,6 +100,13 @@ kotlin {
             }
         }
         val desktopTest by getting
+
+        /*val jsMain by getting {
+            dependencies {
+                api(compose.web.core)
+                api("io.ktor:ktor-client-js:$ktorVersion")
+            }
+        }*/
     }
 }
 

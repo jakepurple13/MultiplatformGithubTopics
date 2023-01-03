@@ -18,4 +18,9 @@ pluginManagement {
 
 rootProject.name = "GithubTopics"
 
-include(":android", ":desktop", ":common")
+include(
+    ":android",
+    ":desktop",
+    ":common",
+    //":jsApp"
+)
