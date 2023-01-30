@@ -95,7 +95,7 @@ kotlin {
                 api(compose.preview)
                 api(compose.desktop.components.splitPane)
                 api("org.jetbrains.kotlinx:kotlinx-html-jvm:0.8.0")
-                api("me.friwi:jcefmaven:108.4.13")
+                api("me.friwi:jcefmaven:109.1.11.1")
                 api("com.github.Dansoftowner:jSystemThemeDetector:3.6")
             }
         }
