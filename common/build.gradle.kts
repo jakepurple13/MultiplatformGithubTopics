@@ -53,7 +53,7 @@ kotlin {
         }
         val androidMain by getting {
             dependencies {
-                api("androidx.appcompat:appcompat:1.5.1")
+                api("androidx.appcompat:appcompat:1.6.1")
                 api("androidx.core:core-ktx:1.9.0")
                 api("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
                 api("androidx.lifecycle:lifecycle-runtime-compose:2.6.0-alpha03")
