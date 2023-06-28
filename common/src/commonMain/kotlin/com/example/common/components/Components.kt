@@ -21,7 +21,7 @@ fun IconsButton(
     enabled: Boolean = true,
     colors: IconButtonColors = IconButtonDefaults.iconButtonColors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-) = IconButton(onClick, modifier, enabled, interactionSource, colors) { Icon(icon, null) }
+) = IconButton(onClick, modifier, enabled, colors, interactionSource) { Icon(icon, null) }
 
 @Composable
 @ExperimentalMaterial3Api

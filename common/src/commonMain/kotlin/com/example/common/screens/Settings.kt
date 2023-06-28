@@ -36,7 +36,7 @@ fun SettingsScreen(
     ) {
         topPull()
         Scaffold(
-            topBar = { SmallTopAppBar(title = { Text("Settings") }) }
+            topBar = { TopAppBar(title = { Text("Settings") }) }
         ) { padding ->
             Column(
                 modifier = Modifier
@@ -63,7 +63,7 @@ fun SettingsScreen(
                     modifier = Modifier.padding(horizontal = 4.dp)
                 )
 
-                SmallTopAppBar(title = { Text("Select Theme", style = MaterialTheme.typography.bodyLarge) })
+                TopAppBar(title = { Text("Select Theme", style = MaterialTheme.typography.bodyLarge) })
 
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.s),

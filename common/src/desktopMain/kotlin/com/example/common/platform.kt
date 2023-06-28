@@ -6,7 +6,10 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ArrowCircleLeft
+import androidx.compose.material.icons.filled.ArrowCircleRight
+import androidx.compose.material.icons.filled.WebAsset
+import androidx.compose.material.icons.filled.WebAssetOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -131,9 +134,10 @@ actual fun BoxScope.ScrollBar(scrollState: ScrollState) {
     )
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 actual fun ChipLayout(modifier: Modifier, content: @Composable () -> Unit) {
-    FlowRow(modifier = modifier, content = content)
+    FlowRow(modifier = modifier) { content() }
 }
 
 @Composable

@@ -26,7 +26,6 @@ import com.example.common.components.InfiniteListHandler
 import com.example.common.components.TopicItem
 import com.example.common.viewmodels.BaseTopicVM
 import com.example.common.viewmodels.FavoritesVM
-import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 @Composable
@@ -43,13 +42,13 @@ fun GithubTopicUI(
 ) {
     val appActions = LocalAppActions.current
     val scope = rememberCoroutineScope()
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarScrollState())
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val state = LocalMainScrollState.current
     val showButton by remember { derivedStateOf { state.firstVisibleItemIndex > 0 } }
 
     Scaffold(
         topBar = {
-            SmallTopAppBar(
+            TopAppBar(
                 navigationIcon = navigationIcon,
                 title = { Text(text = "Github Topics") },
                 actions = {
@@ -155,7 +154,7 @@ fun TopicDrawer(vm: BaseTopicVM) {
     Scaffold(
         topBar = {
             val actions = LocalAppActions.current
-            SmallTopAppBar(
+            TopAppBar(
                 title = { Text("Topics") },
                 actions = { IconsButton(onClick = actions.showFavorites, icon = Icons.Default.Favorite) }
             )
@@ -240,7 +239,7 @@ fun TopicDrawer(vm: BaseTopicVM) {
 fun LibrariesUsed(backAction: () -> Unit) {
     Scaffold(
         topBar = {
-            SmallTopAppBar(
+            TopAppBar(
                 title = { Text("Libraries Used") },
                 navigationIcon = { IconsButton(onClick = backAction, icon = Icons.Default.ArrowBack) },
             )

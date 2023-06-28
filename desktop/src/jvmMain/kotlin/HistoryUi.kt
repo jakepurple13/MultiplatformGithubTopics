@@ -32,7 +32,7 @@ fun HistoryUi(
     favoritesVM: FavoritesVM,
     backAction: () -> Unit
 ) {
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarScrollState())
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
         topBar = {
             SmallTopAppBar(

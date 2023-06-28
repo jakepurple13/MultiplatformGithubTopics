@@ -39,7 +39,7 @@ fun Project.setupProjectInfo(): Unit = (this as ExtensionAware).extensions.confi
 
 buildscript {
     dependencies {
-        classpath("io.realm.kotlin:gradle-plugin:1.5.1")
+        classpath("io.realm.kotlin:gradle-plugin:1.9.0")
         classpath("io.github.jakepurple13.ProjectInfo:projectinfoplugin:1.1.1")
     }
 }
@@ -50,6 +50,6 @@ plugins {
     id("com.android.application") apply false
     id("com.android.library") apply false
     id("org.jetbrains.compose") apply false
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.7.20" apply false
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.20" apply false
     id("com.mikepenz.aboutlibraries.plugin") version "10.5.2"
 }

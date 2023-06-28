@@ -85,7 +85,7 @@ actual fun TopicDrawerLocation(
     val scope = rememberCoroutineScope()
 
     DismissibleNavigationDrawer(
-        drawerContent = { TopicDrawer(vm) },
+        drawerContent = { DismissibleDrawerSheet { TopicDrawer(vm) } },
         drawerState = drawerState
     ) {
         GithubTopicUI(

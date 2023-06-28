@@ -47,7 +47,7 @@ fun GithubRepo(
 
     Scaffold(
         topBar = {
-            SmallTopAppBar(
+            TopAppBar(
                 navigationIcon = { IconsButton(onClick = backAction, icon = Icons.Default.ArrowBack) },
                 title = {
                     ListItem(
@@ -66,7 +66,7 @@ fun GithubRepo(
                         icon = { Icon(Icons.Default.OpenInBrowser, null) },
                         onClick = { uriHandler.openUri(vm.item.htmlUrl) })
                 },
-                icons = {
+                actions = {
                     RepoViewToggle(repoVM = vm)
 
                     NavigationBarItem(

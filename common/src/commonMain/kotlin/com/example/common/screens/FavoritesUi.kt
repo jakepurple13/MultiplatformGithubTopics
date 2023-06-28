@@ -1,18 +1,23 @@
 package com.example.common.screens
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
-import com.example.common.*
+import com.example.common.GitHubTopic
+import com.example.common.LocalAppActions
+import com.example.common.ReposScrollBar
 import com.example.common.components.IconsButton
 import com.example.common.components.TopicItem
 import com.example.common.viewmodels.FavoritesVM
@@ -23,10 +28,10 @@ fun FavoritesUi(
     favoritesVM: FavoritesVM,
     backAction: () -> Unit
 ) {
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarScrollState())
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
         topBar = {
-            SmallTopAppBar(
+            TopAppBar(
                 title = { Text("Favorites") },
                 navigationIcon = { IconsButton(onClick = backAction, icon = Icons.Default.ArrowBack) },
                 actions = { Text("${favoritesVM.items.size} favorites") },
