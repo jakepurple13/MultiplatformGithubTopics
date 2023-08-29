@@ -51,8 +51,8 @@ fun GithubRepo(
                 navigationIcon = { IconsButton(onClick = backAction, icon = Icons.Default.ArrowBack) },
                 title = {
                     ListItem(
-                        headlineText = { Text(vm.item.name, style = MaterialTheme.typography.titleLarge) },
-                        overlineText = { Text(vm.item.fullName) },
+                        headlineContent = { Text(vm.item.name, style = MaterialTheme.typography.titleLarge) },
+                        overlineContent = { Text(vm.item.fullName) },
                         colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                     )
                 },

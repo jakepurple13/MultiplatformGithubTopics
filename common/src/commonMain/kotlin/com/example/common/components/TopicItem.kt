@@ -44,14 +44,14 @@ fun TopicItem(
     ) {
         Column(modifier = Modifier.padding(4.dp)) {
             ListItem(
-                headlineText = { Text(item.name) },
-                overlineText = {
+                headlineContent = { Text(item.name) },
+                overlineContent = {
                     Text(
                         item.fullName,
                         textDecoration = TextDecoration.Underline
                     )
                 },
-                supportingText = { item.description?.let { Text(it) } },
+                supportingContent = { item.description?.let { Text(it) } },
                 leadingContent = {
                     Surface(shape = CircleShape) {
                         KamelImage(

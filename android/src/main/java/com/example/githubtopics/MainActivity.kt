@@ -1,4 +1,4 @@
-package com.example.android
+package com.example.githubtopics
 
 import android.content.Intent
 import android.net.Uri
@@ -29,9 +29,6 @@ import com.fragula2.compose.FragulaNavHost
 import com.fragula2.compose.rememberFragulaNavController
 import com.fragula2.compose.swipeable
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
-import com.google.accompanist.navigation.material.ModalBottomSheetLayout
-import com.google.accompanist.navigation.material.bottomSheet
-import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
 import io.noties.prism4j.annotations.PrismBundle
 import io.realm.kotlin.ext.asFlow
 import kotlinx.coroutines.flow.*
@@ -44,12 +41,13 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         val db = Database()
         setContent {
             val vm: AppViewModel = viewModel { AppViewModel(db) }
             val favoritesVM: FavoritesViewModel = viewModel { FavoritesViewModel(db) }
-            val bottomSheetNavigator = rememberBottomSheetNavigator()
-            val navController = rememberFragulaNavController(bottomSheetNavigator)
+            //val bottomSheetNavigator = rememberBottomSheetNavigator()
+            val navController = rememberFragulaNavController(/*bottomSheetNavigator*/)
             val scope = rememberCoroutineScope()
             val topicDrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
             Theme(
@@ -87,11 +85,11 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                ModalBottomSheetLayout(
+                /*ModalBottomSheetLayout(
                     bottomSheetNavigator,
                     sheetBackgroundColor = MaterialTheme.colorScheme.background,
                     sheetShape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
-                ) {
+                ) {*/
                     FragulaNavHost(
                         navController = navController,
                         startDestination = Screen.App.route
@@ -131,7 +129,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        bottomSheet(Screen.Settings.route) {
+                        swipeable(Screen.Settings.route) {
                             val context = LocalContext.current
                             SettingsScreen(
                                 currentThemeColors = vm.themeColors,
@@ -166,7 +164,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     }
-                }
+                //}
             }
         }
     }

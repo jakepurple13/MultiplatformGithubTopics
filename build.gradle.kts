@@ -50,6 +50,6 @@ plugins {
     id("com.android.application") apply false
     id("com.android.library") apply false
     id("org.jetbrains.compose") apply false
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.20" apply false
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.0" apply false
     id("com.mikepenz.aboutlibraries.plugin") version "10.5.2"
 }

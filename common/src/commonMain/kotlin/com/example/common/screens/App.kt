@@ -211,7 +211,7 @@ fun TopicDrawer(vm: BaseTopicVM) {
                     onClick = { scope.launch { vm.toggleSingleTopic() } }
                 ) {
                     ListItem(
-                        headlineText = { Text("Use ${if (vm.singleTopic) "Single" else "Multiple"} Topic(s)") },
+                        headlineContent = { Text("Use ${if (vm.singleTopic) "Single" else "Multiple"} Topic(s)") },
                         trailingContent = {
                             Switch(
                                 checked = vm.singleTopic,
