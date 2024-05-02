@@ -39,7 +39,7 @@ fun Project.setupProjectInfo(): Unit = (this as ExtensionAware).extensions.confi
 
 buildscript {
     dependencies {
-        classpath("io.realm.kotlin:gradle-plugin:1.9.0")
+        classpath("io.realm.kotlin:gradle-plugin:1.16.0")
         classpath("io.github.jakepurple13.ProjectInfo:projectinfoplugin:1.1.1")
     }
 }
