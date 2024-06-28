@@ -38,7 +38,7 @@ kotlin {
                 api("io.ktor:ktor-client-content-negotiation:$ktorVersion")
                 api("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 api("io.ktor:ktor-client-logging:$ktorVersion")
-                api("org.ocpsoft.prettytime:prettytime:5.0.2.Final")
+                api("org.ocpsoft.prettytime:prettytime:5.0.9.Final")
                 api("com.alialbaali.kamel:kamel-image:0.4.1")
                 api("com.mikepenz:multiplatform-markdown-renderer:0.6.1")
                 api("io.realm.kotlin:library-base:1.9.0")
