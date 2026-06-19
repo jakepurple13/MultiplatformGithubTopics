@@ -82,7 +82,7 @@ kotlin {
                     )
                 )
 
-                api("pl.droidsonroids.gif:android-gif-drawable:1.2.25")
+                api("pl.droidsonroids.gif:android-gif-drawable:1.2.32")
             }
         }
         val desktopMain by getting {
